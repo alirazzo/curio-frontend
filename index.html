@@ -25,9 +25,31 @@
     <header class="topbar" id="topbar">
       <div class="logo">curi<em>o</em></div>
       <div class="topbar-actions">
-        <button class="icon-btn shuf-btn" id="shuf-btn" aria-label="Shuffle" title="Shuffle feed" style="display:none">
+        <button class="icon-btn shuf-btn" id="shuf-btn" aria-label="Shuffle" style="display:none">
           <svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
         </button>
+        <div class="filter-wrap" id="filter-wrap" style="display:none">
+          <button class="icon-btn filter-btn" id="filter-btn" aria-label="Filter by topic">
+            <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          </button>
+          <div class="filter-dropdown" id="filter-dropdown">
+            <button class="filter-opt active" data-topic="all">All categories</button>
+            <button class="filter-opt" data-topic="pharma">Pharma &amp; Biotech</button>
+            <button class="filter-opt" data-topic="medicine">Medicine</button>
+            <button class="filter-opt" data-topic="microbiology">Microbiology</button>
+            <button class="filter-opt" data-topic="science">Science</button>
+            <button class="filter-opt" data-topic="space">Space</button>
+            <button class="filter-opt" data-topic="biology">Biology</button>
+            <button class="filter-opt" data-topic="technology">Technology</button>
+            <button class="filter-opt" data-topic="history">History</button>
+            <button class="filter-opt" data-topic="geography">Geography</button>
+            <button class="filter-opt" data-topic="economics">Economics</button>
+            <button class="filter-opt" data-topic="environment">Environment</button>
+            <button class="filter-opt" data-topic="art">Art</button>
+            <button class="filter-opt" data-topic="literature">Literature</button>
+            <button class="filter-opt" data-topic="psychology">Psychology</button>
+          </div>
+        </div>
         <button class="icon-btn" id="theme-btn" aria-label="Toggle theme">
           <svg id="theme-icon" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="5"/>
@@ -45,18 +67,6 @@
         </button>
       </div>
     </header>
-
-    <div class="topic-strip" id="topic-strip" style="display:none">
-      <button class="pill active" data-topic="all">All</button>
-      <button class="pill" data-topic="science">Science</button>
-      <button class="pill" data-topic="history">History</button>
-      <button class="pill" data-topic="space">Space</button>
-      <button class="pill" data-topic="geography">Geography</button>
-      <button class="pill" data-topic="economics">Economics</button>
-      <button class="pill" data-topic="art">Art</button>
-      <button class="pill" data-topic="biology">Biology</button>
-      <button class="pill" data-topic="technology">Technology</button>
-    </div>
 
     <main class="feed" id="feed">
       <div id="feed-home" class="feed-section">
