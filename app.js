@@ -274,7 +274,6 @@ function cardImageHtml(card) {
 function cardMetaHtml(card) {
   return `
     <div class="card-meta">
-      <span class="topic-tag tag-${card.topic}">${card.topic.charAt(0).toUpperCase() + card.topic.slice(1)}</span>
       <span class="source-label">
         ${card.sourceLabel}
         ${card.verified ? '<span class="verified-check"><svg viewBox="0 0 10 10"><path d="M1.5 5l2.5 2.5 4.5-4.5"/></svg></span>' : ''}
@@ -585,11 +584,9 @@ function setTab(tab) {
   document.getElementById('feed-saved').style.display = tab === 'saved' ? 'block' : 'none';
   document.getElementById('feed-quiz').style.display  = tab === 'quiz'  ? 'block' : 'none';
 
-  const strip = document.getElementById('topic-strip');
-  strip.style.display = (tab === 'home' || tab === 'news') ? 'flex' : 'none';
-
-  const shuffleBtn = document.getElementById('shuf-btn');
-  shuffleBtn.style.display = tab === 'home' ? 'flex' : 'none';
+  const isDiscovery = tab === 'home' || tab === 'news';
+  document.getElementById('shuf-btn').style.display    = tab === 'home' ? 'flex' : 'none';
+  document.getElementById('filter-wrap').style.display = isDiscovery ? 'block' : 'none';
 
   if (tab === 'saved') renderSaved();
   if (tab === 'quiz') renderQuiz();
@@ -599,11 +596,21 @@ function setTab(tab) {
 
 function setTopic(topic) {
   state.activeTopic = topic;
-  document.querySelectorAll('.pill').forEach(p => {
+  // Update active state on dropdown options
+  document.querySelectorAll('.filter-opt').forEach(p => {
     p.classList.toggle('active', p.dataset.topic === topic);
   });
+  // Update filter button to show active state
+  const btn = document.getElementById('filter-btn');
+  btn.classList.toggle('filter-active', topic !== 'all');
+  // Close dropdown
+  document.getElementById('filter-dropdown').classList.remove('open');
   if (state.tab === 'home') renderHome();
   if (state.tab === 'news') renderNews();
+}
+
+function toggleFilterDropdown() {
+  document.getElementById('filter-dropdown').classList.toggle('open');
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -719,9 +726,17 @@ async function init() {
     el.addEventListener('click', () => setTab(el.dataset.tab));
   });
 
-  // Topic pills
-  document.querySelectorAll('.pill').forEach(el => {
+  // Filter dropdown
+  document.getElementById('filter-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleFilterDropdown();
+  });
+  document.querySelectorAll('.filter-opt').forEach(el => {
     el.addEventListener('click', () => setTopic(el.dataset.topic));
+  });
+  // Close dropdown when clicking outside
+  document.addEventListener('click', () => {
+    document.getElementById('filter-dropdown').classList.remove('open');
   });
 
   // Theme toggle
@@ -741,9 +756,9 @@ async function init() {
     }
   });
 
-  // Show home tab UI
-  document.getElementById('topic-strip').style.display = 'flex';
-  document.getElementById('shuf-btn').style.display = 'flex';
+  // Show home tab controls
+  document.getElementById('shuf-btn').style.display    = 'flex';
+  document.getElementById('filter-wrap').style.display = 'block';
 
   // Load content in parallel
   try {
