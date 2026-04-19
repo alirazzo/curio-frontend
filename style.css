@@ -101,37 +101,41 @@ body {
 .shuf-btn.spinning svg { animation: spin 0.45s linear; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ─── Topic Strip ───────────────────────────────────────────────── */
-.topic-strip {
-  height: 36px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 14px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  flex-shrink: 0;
-  border-bottom: 0.5px solid var(--brd);
-  background: var(--bg);
-}
-.topic-strip::-webkit-scrollbar { display: none; }
-.pill {
-  height: 22px;
-  padding: 0 10px;
-  border-radius: 11px;
+/* ─── Filter Dropdown ───────────────────────────────────────────── */
+.filter-wrap { position: relative; display: inline-flex; }
+.filter-btn.filter-active { border: 0.5px solid var(--acc) !important; background: var(--surf) !important; }
+.filter-btn.filter-active svg { stroke: var(--acc) !important; }
+.filter-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--surf);
   border: 0.5px solid var(--brd);
-  background: transparent;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--t3);
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 200;
+  min-width: 190px;
 }
-.pill.active { background: var(--acc); border-color: var(--acc); color: #fff; }
-.pill:hover:not(.active) { border-color: var(--t2); color: var(--t2); }
+.filter-dropdown.open { display: block; }
+.filter-opt {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 0.5px solid var(--brd);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--t2);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.filter-opt:last-child { border-bottom: none; }
+.filter-opt:hover { background: var(--bg); color: var(--txt); }
+.filter-opt.active { color: var(--acc); font-weight: 500; }
+
 
 /* ─── Feed ──────────────────────────────────────────────────────── */
 .feed {
