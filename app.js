@@ -3,24 +3,11 @@
 // ─────────────────────────────────────────────────────────────────
 //  CONFIGURATION
 // ─────────────────────────────────────────────────────────────────
-
-
-// ─────────────────────────────────────────────────────────────────
-//  CONFIGURATION  —  Replace keys below with your free keys
-// ─────────────────────────────────────────────────────────────────
 const CONFIG = {
-  // Get your free Guardian key in 2 minutes at:
-  // https://open-platform.theguardian.com/access/
-  // 'test' works out of the box with lower rate limits
-  GUARDIAN_KEY: 'test',
-
-  // Get your free NASA key (optional) at: https://api.nasa.gov
-  // 'DEMO_KEY' works immediately (50 req/day per IP)
-  NASA_KEY: 'DEMO_KEY',
-
+  BACKEND_URL:   'https://curio-backend-yxm1.onrender.com',
   CARDS_TO_SHOW: 50,
-  NEWS_TO_SHOW: 30,
-  CACHE_TTL_MS: 15 * 60 * 1000, // 15 minutes
+  NEWS_TO_SHOW:  30,
+  CACHE_TTL_MS:  15 * 60 * 1000,
 };
 
 // ─────────────────────────────────────────────────────────────────
