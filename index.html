@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Curio">
+  <meta name="theme-color" content="#0d0f14" id="theme-color-meta">
+  <title>Curio</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app" data-theme="dark">
+
+    <div class="status-bar">
+      <span id="clock">--:--</span>
+      <span class="offline-pill" id="offline-pill" style="display:none">● offline</span>
+    </div>
+
+    <header class="topbar" id="topbar">
+      <div class="logo">curi<em>o</em></div>
+      <div class="topbar-actions">
+        <button class="icon-btn shuf-btn" id="shuf-btn" aria-label="Shuffle" title="Shuffle feed" style="display:none">
+          <svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+        </button>
+        <button class="icon-btn" id="theme-btn" aria-label="Toggle theme">
+          <svg id="theme-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="notif-btn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="topic-strip" id="topic-strip" style="display:none">
+      <button class="pill active" data-topic="all">All</button>
+      <button class="pill" data-topic="science">Science</button>
+      <button class="pill" data-topic="history">History</button>
+      <button class="pill" data-topic="space">Space</button>
+      <button class="pill" data-topic="geography">Geography</button>
+      <button class="pill" data-topic="economics">Economics</button>
+      <button class="pill" data-topic="art">Art</button>
+      <button class="pill" data-topic="biology">Biology</button>
+      <button class="pill" data-topic="technology">Technology</button>
+    </div>
+
+    <main class="feed" id="feed">
+      <div id="feed-home" class="feed-section">
+        <div class="loading-state" id="home-loading">
+          <div class="spinner"></div>
+          <p>Gathering discoveries…</p>
+        </div>
+        <div id="home-otd"></div>
+        <p class="section-label" id="home-disc-label" style="display:none">Today's discoveries</p>
+        <div id="home-cards"></div>
+      </div>
+
+      <div id="feed-news" class="feed-section" style="display:none">
+        <div class="loading-state" id="news-loading">
+          <div class="spinner"></div>
+          <p>Loading headlines…</p>
+        </div>
+        <div class="breaking-band" id="breaking-band" style="display:none">
+          <span class="breaking-pill">Breaking</span>
+          <span class="breaking-line"></span>
+        </div>
+        <p class="section-label" id="news-lbl" style="display:none">Latest headlines</p>
+        <div id="news-cards"></div>
+      </div>
+
+      <div id="feed-saved" class="feed-section" style="display:none">
+        <p class="section-label">Saved items</p>
+        <div id="saved-list"></div>
+        <p class="empty-state" id="saved-empty" style="display:none">Nothing saved yet. Tap the bookmark icon on any card.</p>
+      </div>
+
+      <div id="feed-quiz" class="feed-section" style="display:none">
+        <p class="section-label">Daily quiz</p>
+        <div id="quiz-cards"></div>
+      </div>
+    </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-tab="home">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Home</span>
+      </button>
+      <button class="nav-item" data-tab="news">
+        <span class="nav-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg>
+          <span class="nav-badge" id="news-badge"></span>
+        </span>
+        <span>News</span>
+      </button>
+      <button class="nav-item" data-tab="saved">
+        <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <span>Saved</span>
+      </button>
+      <button class="nav-item" data-tab="quiz">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Quiz</span>
+      </button>
+    </nav>
+
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
