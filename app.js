@@ -7,7 +7,8 @@ const CONFIG = {
   BACKEND_URL:   'https://curio-backend-yxm1.onrender.com',
   CARDS_TO_SHOW: 50,
   NEWS_TO_SHOW:  30,
-  CACHE_TTL_MS:  15 * 60 * 1000,
+  CACHE_TTL_MS:       4 * 60 * 60 * 1000,  // 4 hours for learning content
+  CACHE_TTL_NEWS_MS: 30 * 60 * 1000,       // 30 minutes for news
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -176,12 +177,12 @@ function scoreColor(n) {
   return 'lo';
 }
 
-function getCached(key) {
+function getCached(key, ttl) {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) return null;
     const { data, ts } = JSON.parse(raw);
-    if (Date.now() - ts > CONFIG.CACHE_TTL_MS) return null;
+    if (Date.now() - ts > (ttl || CONFIG.CACHE_TTL_MS)) return null;
     return data;
   } catch { return null; }
 }
@@ -241,7 +242,7 @@ async function loadHomeContent() {
 
 async function loadNewsContent() {
   const cacheKey = 'curio_cache_news';
-  const cached = getCached(cacheKey);
+  const cached = getCached(cacheKey, CONFIG.CACHE_TTL_NEWS_MS);
   if (cached) { state.newsCards = cached; return; }
   const data = await apiFetch('/api/news?limit=' + CONFIG.NEWS_TO_SHOW);
   state.newsCards = data.items || [];
@@ -654,15 +655,6 @@ function setTheme(theme) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────
-//  CLOCK
-// ─────────────────────────────────────────────────────────────────
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent =
-    now.getHours().toString().padStart(2, '0') + ':' +
-    now.getMinutes().toString().padStart(2, '0');
-}
 
 // ─────────────────────────────────────────────────────────────────
 //  SERVICE WORKER REGISTRATION (PWA)
@@ -716,10 +708,6 @@ function updateOnlineStatus() {
 async function init() {
   // Apply saved theme
   setTheme(state.theme);
-
-  // Clock
-  updateClock();
-  setInterval(updateClock, 30000);
 
   // Online/offline
   updateOnlineStatus();
