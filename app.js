@@ -616,33 +616,39 @@ function toggleFilterDropdown() {
 // ─────────────────────────────────────────────────────────────────
 //  SHUFFLE
 // ─────────────────────────────────────────────────────────────────
-function doShuffle() {
+async function doShuffle() {
   const btn = document.getElementById('shuf-btn');
-  btn.classList.add('spinning');
   const container = document.getElementById('home-cards');
-  container.style.opacity = '0.2';
+
+  btn.classList.add('spinning');
+  container.style.opacity = '0.25';
   container.style.transition = 'opacity 0.2s';
 
-  // Remove cache so next shuffle can re-fetch fresh content
+  // Always bust cache and fetch genuinely fresh content from backend
   localStorage.removeItem('curio_cache_home');
 
-  setTimeout(async () => {
+  try {
+    await loadHomeContent();          // fetch new random batch from server
+  } catch {
+    // If backend is asleep or offline, fall back to reshuffling what we have
     state.homeCards = shuffle(state.homeCards);
-    renderHome();
-    container.style.opacity = '1';
-    btn.classList.remove('spinning');
+  }
 
-    // Also try to load fresh content in background
-    try {
-      await loadHomeContent();
-      renderHome();
-    } catch {}
-  }, 280);
+  renderHome();
+  container.style.opacity = '1';
+  btn.classList.remove('spinning');
 }
 
 // ─────────────────────────────────────────────────────────────────
-//  THEME
+//  KEEP-ALIVE  —  Ping backend every 14 min so Render never sleeps
 // ─────────────────────────────────────────────────────────────────
+function startKeepAlive() {
+  const ping = () => fetch(CONFIG.BACKEND_URL + '/health', { signal: AbortSignal.timeout(5000) }).catch(() => {});
+  ping(); // immediate ping on load
+  setInterval(ping, 14 * 60 * 1000);
+}
+
+
 function setTheme(theme) {
   state.theme = theme;
   document.getElementById('app').dataset.theme = theme;
@@ -749,6 +755,7 @@ async function init() {
 
   // PWA
   registerSW();
+  startKeepAlive();
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     if (!localStorage.getItem('curio_hide_install')) {
