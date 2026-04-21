@@ -38,6 +38,8 @@
             <button class="filter-opt" data-topic="medicine">Medicine</button>
             <button class="filter-opt" data-topic="microbiology">Microbiology</button>
             <button class="filter-opt" data-topic="science">Science</button>
+            <button class="filter-opt" data-topic="ai">AI</button>
+            <button class="filter-opt" data-topic="chemistry">Chemistry</button>
             <button class="filter-opt" data-topic="space">Space</button>
             <button class="filter-opt" data-topic="biology">Biology</button>
             <button class="filter-opt" data-topic="technology">Technology</button>
@@ -45,9 +47,11 @@
             <button class="filter-opt" data-topic="geography">Geography</button>
             <button class="filter-opt" data-topic="economics">Economics</button>
             <button class="filter-opt" data-topic="environment">Environment</button>
+            <button class="filter-opt" data-topic="geopolitics">Geopolitics</button>
+            <button class="filter-opt" data-topic="psychology">Psychology</button>
             <button class="filter-opt" data-topic="art">Art</button>
             <button class="filter-opt" data-topic="literature">Literature</button>
-            <button class="filter-opt" data-topic="psychology">Psychology</button>
+            <button class="filter-opt" data-topic="philosophy">Philosophy</button>
           </div>
         </div>
         <button class="icon-btn" id="theme-btn" aria-label="Toggle theme">
@@ -99,7 +103,13 @@
       </div>
 
       <div id="feed-quiz" class="feed-section" style="display:none">
-        <p class="section-label">Daily quiz</p>
+        <div class="section-header">
+          <p class="section-label">Daily quiz</p>
+          <button class="quiz-shuffle-btn" onclick="shuffleQuiz()" aria-label="New questions">
+            <svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+            New questions
+          </button>
+        </div>
         <div id="quiz-cards"></div>
       </div>
     </main>
