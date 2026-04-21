@@ -619,23 +619,26 @@ function toggleFilterDropdown() {
 async function doShuffle() {
   const btn = document.getElementById('shuf-btn');
   const container = document.getElementById('home-cards');
+  const discLabel = document.getElementById('home-disc-label');
 
   btn.classList.add('spinning');
-  container.style.opacity = '0.25';
-  container.style.transition = 'opacity 0.2s';
 
-  // Always bust cache and fetch genuinely fresh content from backend
+  // Clear cards immediately and show spinner
+  container.innerHTML = '';
+  discLabel.style.display = 'none';
+  document.getElementById('home-loading').style.display = 'flex';
+
+  // Bust cache and fetch fresh content
   localStorage.removeItem('curio_cache_home');
 
   try {
-    await loadHomeContent();          // fetch new random batch from server
+    await loadHomeContent();
   } catch {
-    // If backend is asleep or offline, fall back to reshuffling what we have
     state.homeCards = shuffle(state.homeCards);
   }
 
+  document.getElementById('home-loading').style.display = 'none';
   renderHome();
-  container.style.opacity = '1';
   btn.classList.remove('spinning');
 }
 
