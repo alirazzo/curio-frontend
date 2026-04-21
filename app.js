@@ -620,25 +620,37 @@ async function doShuffle() {
   const btn = document.getElementById('shuf-btn');
   const container = document.getElementById('home-cards');
   const discLabel = document.getElementById('home-disc-label');
+  const loadingEl = document.getElementById('home-loading');
 
   btn.classList.add('spinning');
-
-  // Clear cards immediately and show spinner
   container.innerHTML = '';
   discLabel.style.display = 'none';
-  document.getElementById('home-loading').style.display = 'flex';
+  loadingEl.style.display = 'flex';
+  loadingEl.innerHTML = '<div class="spinner"></div><p>Fetching new cards…</p>';
 
-  // Bust cache and fetch fresh content
   localStorage.removeItem('curio_cache_home');
 
   try {
     await loadHomeContent();
+    loadingEl.style.display = 'none';
+    renderHome();
   } catch {
-    state.homeCards = shuffle(state.homeCards);
+    // Backend asleep — show message and retry once after 35s
+    loadingEl.innerHTML = '<div class="spinner"></div><p>Server waking up…<br><small>Ready in ~30 seconds</small></p>';
+    setTimeout(async () => {
+      try {
+        await loadHomeContent();
+        loadingEl.style.display = 'none';
+        renderHome();
+      } catch {
+        // Still failed — fall back to reshuffling what we have
+        loadingEl.style.display = 'none';
+        state.homeCards = shuffle(state.homeCards);
+        renderHome();
+      }
+    }, 35000);
   }
 
-  document.getElementById('home-loading').style.display = 'none';
-  renderHome();
   btn.classList.remove('spinning');
 }
 
