@@ -1,4 +1,4 @@
-const CACHE_NAME = 'curio-v1';
+const CACHE_NAME = 'curio-v4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
