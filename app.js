@@ -454,59 +454,113 @@ function renderSaved() {
   });
 }
 
-const QUIZ_QUESTIONS = [
-  {
-    topic: 'Space · nasa.gov',
-    q: 'Which planet has a day longer than its year?',
-    opts: ['Mercury', 'Venus', 'Mars', 'Jupiter'],
-    correct: 1,
-    explanation: 'Venus takes 243 Earth days to rotate but only 225 to orbit the Sun.'
-  },
-  {
-    topic: 'History · wikipedia.org',
-    q: 'The Silk Road primarily connected which two regions?',
-    opts: ['India and Africa', 'China and the Mediterranean', 'Arabia and Europe', 'Persia and India'],
-    correct: 1,
-    explanation: 'The Silk Road was a 4,000-mile network linking China to the Mediterranean for 1,500 years.'
-  },
-  {
-    topic: 'Science · nature.com',
-    q: 'Approximately how many lightning strikes hit Earth every second?',
-    opts: ['10', '50', '100', '500'],
-    correct: 2,
-    explanation: 'Earth receives about 100 lightning strikes per second — roughly 8 million per day.'
-  },
-  {
-    topic: 'Biology · nih.gov',
-    q: 'How many neurons does the enteric (gut) nervous system contain?',
-    opts: ['5 million', '100 million', '500 million', '5 billion'],
-    correct: 2,
-    explanation: 'The gut has ~500 million neurons — more than the spinal cord — and operates largely independently.'
-  },
-  {
-    topic: 'Geography · nationalgeographic.com',
-    q: 'Which country holds the most freshwater lakes on Earth?',
-    opts: ['Brazil', 'Russia', 'USA', 'Canada'],
-    correct: 3,
-    explanation: 'Canada has over 2 million lakes, holding ~20% of the world\'s fresh surface water.'
-  },
+const QUIZ_POOL = [
+  // Space
+  { topic:'Space', q:'Which planet has a day longer than its year?', opts:['Mercury','Venus','Mars','Jupiter'], correct:1, explanation:'Venus takes 243 Earth days to rotate but only 225 to orbit the Sun — and it spins backwards.' },
+  { topic:'Space', q:'What is the nearest star to Earth after the Sun?', opts:['Barnard\'s Star','Sirius','Proxima Centauri','Vega'], correct:2, explanation:'Proxima Centauri is about 4.24 light-years away, making it our closest stellar neighbour.' },
+  { topic:'Space', q:'How many moons does Mars have?', opts:['0','1','2','4'], correct:2, explanation:'Mars has two small moons: Phobos and Deimos, likely captured asteroids.' },
+  { topic:'Space', q:'What is a neutron star made of mostly?', opts:['Iron','Hydrogen plasma','Neutrons','Dark matter'], correct:2, explanation:'Neutron stars are so dense that protons and electrons are crushed together into neutrons.' },
+  { topic:'Space', q:'The Great Red Spot on Jupiter is a storm that has lasted approximately how long?', opts:['50 years','200 years','350+ years','1,000 years'], correct:2, explanation:'The Great Red Spot has been observed since the 1600s — a persistent anticyclonic storm wider than Earth.' },
+  // Science
+  { topic:'Science', q:'Approximately how many lightning strikes hit Earth every second?', opts:['10','50','100','500'], correct:2, explanation:'Earth receives about 100 lightning strikes per second — roughly 8 million per day.' },
+  { topic:'Science', q:'What is the hardest natural substance on Earth?', opts:['Titanium','Quartz','Graphene','Diamond'], correct:3, explanation:'Diamond scores 10 on the Mohs scale. Graphene is stronger but diamond is the hardest naturally occurring mineral.' },
+  { topic:'Science', q:'What percentage of the ocean has been explored by humans?', opts:['5%','20%','50%','80%'], correct:0, explanation:'Only about 5% of Earth\'s oceans have been explored. The deep sea remains largely unmapped.' },
+  { topic:'Science', q:'At what temperature are Celsius and Fahrenheit equal?', opts:['-40°','-32°','0°','32°'], correct:0, explanation:'At −40°, both scales intersect. The formula where °C = °F gives exactly −40.' },
+  { topic:'Science', q:'What is the most abundant gas in Earth\'s atmosphere?', opts:['Oxygen','Carbon dioxide','Argon','Nitrogen'], correct:3, explanation:'Nitrogen makes up about 78% of Earth\'s atmosphere; oxygen is about 21%.' },
+  // Biology
+  { topic:'Biology', q:'How many neurons does the gut\'s enteric nervous system contain?', opts:['5 million','100 million','500 million','5 billion'], correct:2, explanation:'The gut has ~500 million neurons — more than the spinal cord — and operates largely independently.' },
+  { topic:'Biology', q:'What percentage of human DNA is shared with a banana?', opts:['10%','30%','50%','60%'], correct:3, explanation:'Humans share roughly 60% of their DNA with bananas — reflecting common ancestry of all eukaryotic life.' },
+  { topic:'Biology', q:'How many cells are in the average adult human body?', opts:['37 million','370 million','37 billion','37 trillion'], correct:3, explanation:'The human body contains approximately 37 trillion cells, roughly 84% of which are red blood cells.' },
+  { topic:'Biology', q:'What is the longest-living vertebrate known to science?', opts:['Giant tortoise','Bowhead whale','Greenland shark','Koi fish'], correct:2, explanation:'Greenland sharks can live over 400 years, making them the longest-lived vertebrates known.' },
+  { topic:'Biology', q:'What molecule carries genetic instructions in all living organisms?', opts:['Protein','ATP','DNA','Glucose'], correct:2, explanation:'DNA (deoxyribonucleic acid) encodes the genetic instructions used in the development and functioning of all known organisms.' },
+  // History
+  { topic:'History', q:'The Silk Road primarily connected which two regions?', opts:['India and Africa','China and the Mediterranean','Arabia and Europe','Persia and India'], correct:1, explanation:'The Silk Road was a 4,000-mile network linking China to the Mediterranean for 1,500 years.' },
+  { topic:'History', q:'In what year did the Berlin Wall fall?', opts:['1987','1989','1991','1993'], correct:1, explanation:'The Berlin Wall fell on November 9, 1989, marking a pivotal moment in the end of the Cold War.' },
+  { topic:'History', q:'Which empire was the largest contiguous land empire in history?', opts:['Roman Empire','British Empire','Mongol Empire','Ottoman Empire'], correct:2, explanation:'At its peak in the 13th century, the Mongol Empire covered 24 million km² — the largest contiguous land empire ever.' },
+  { topic:'History', q:'What ancient wonder survived into the modern era?', opts:['Colossus of Rhodes','Hanging Gardens','Great Pyramid of Giza','Lighthouse of Alexandria'], correct:2, explanation:'The Great Pyramid of Giza is the only ancient wonder still standing, built around 2560 BCE.' },
+  { topic:'History', q:'The Black Death killed approximately what fraction of Europe\'s population in the 14th century?', opts:['One in ten','One in four','One in three','One in two'], correct:2, explanation:'The Black Death killed roughly one-third of Europe\'s population between 1347 and 1351.' },
+  // Geography
+  { topic:'Geography', q:'Which country has the most freshwater lakes on Earth?', opts:['Brazil','Russia','USA','Canada'], correct:3, explanation:'Canada has over 2 million lakes, holding ~20% of the world\'s fresh surface water.' },
+  { topic:'Geography', q:'What is the longest river in the world?', opts:['Amazon','Congo','Yangtze','Nile'], correct:3, explanation:'The Nile stretches approximately 6,650 km through northeastern Africa, though the Amazon rivals it by some measures.' },
+  { topic:'Geography', q:'Which country has the most UNESCO World Heritage Sites?', opts:['China','France','Italy','Spain'], correct:2, explanation:'Italy has the most UNESCO World Heritage Sites with 58, followed closely by China and Germany.' },
+  { topic:'Geography', q:'Which ocean is the world\'s largest?', opts:['Atlantic','Arctic','Indian','Pacific'], correct:3, explanation:'The Pacific Ocean covers more than 165 million km² — larger than all land on Earth combined.' },
+  { topic:'Geography', q:'Iceland sits on the boundary of which two tectonic plates?', opts:['Pacific and North American','Eurasian and North American','African and Eurasian','Arabian and Eurasian'], correct:1, explanation:'The Mid-Atlantic Ridge runs through Iceland, the only place this tectonic boundary is above sea level.' },
+  // Economics
+  { topic:'Economics', q:'What does GDP stand for?', opts:['Gross Domestic Product','General Debt Position','Global Development Plan','Gross Deficit Percentage'], correct:0, explanation:'GDP (Gross Domestic Product) measures the total monetary value of goods and services produced in a country.' },
+  { topic:'Economics', q:'Which currency is most traded globally by volume?', opts:['Euro','Chinese Yuan','US Dollar','Japanese Yen'], correct:2, explanation:'The US Dollar is involved in about 88% of all foreign exchange transactions globally.' },
+  { topic:'Economics', q:'What is the main function of a central bank?', opts:['Lending to individuals','Managing national currency and monetary policy','Regulating stock markets','Collecting corporate taxes'], correct:1, explanation:'Central banks manage a country\'s monetary policy, control money supply, and often act as lender of last resort to banks.' },
+  // Medicine
+  { topic:'Medicine', q:'What is CRISPR primarily used for?', opts:['Drug delivery','Gene editing','Brain scanning','Virus detection'], correct:1, explanation:'CRISPR-Cas9 is a gene-editing technology that allows precise modifications to DNA sequences in living organisms.' },
+  { topic:'Medicine', q:'How many bones are in the adult human body?', opts:['186','206','226','246'], correct:1, explanation:'Adults have 206 bones. Infants are born with about 270, which fuse over time.' },
+  { topic:'Medicine', q:'What organ produces insulin?', opts:['Liver','Kidney','Stomach','Pancreas'], correct:3, explanation:'The pancreas produces insulin in clusters of cells called the Islets of Langerhans, regulating blood glucose.' },
+  { topic:'Medicine', q:'What is the most common blood type globally?', opts:['A+','B+','AB+','O+'], correct:3, explanation:'O+ is the most common blood type worldwide, present in about 38% of the global population.' },
+  // Pharma
+  { topic:'Pharma', q:'What does mRNA in mRNA vaccines instruct the body to do?', opts:['Destroy viruses directly','Produce a viral protein to trigger immunity','Strengthen white blood cells','Block viral receptor sites'], correct:1, explanation:'mRNA vaccines deliver instructions for cells to produce a harmless viral protein, triggering an immune response without using live virus.' },
+  { topic:'Pharma', q:'What class of drugs are statins?', opts:['Antibiotics','Antivirals','Cholesterol-lowering agents','Blood pressure reducers'], correct:2, explanation:'Statins inhibit HMG-CoA reductase, an enzyme involved in cholesterol synthesis, reducing LDL levels.' },
+  { topic:'Pharma', q:'What was the first antibiotic discovered?', opts:['Amoxicillin','Tetracycline','Streptomycin','Penicillin'], correct:3, explanation:'Alexander Fleming discovered penicillin in 1928 when he noticed mould killing bacteria on a petri dish.' },
+  // Microbiology
+  { topic:'Microbiology', q:'What percentage of the human body\'s cells are microbial?', opts:['10%','30%','50%','Over 50%'], correct:3, explanation:'By cell count, microbial cells match or slightly outnumber human cells — roughly 38 trillion vs 30 trillion.' },
+  { topic:'Microbiology', q:'Which of these is NOT a domain of life?', opts:['Bacteria','Archaea','Eukarya','Protista'], correct:3, explanation:'The three domains of life are Bacteria, Archaea, and Eukarya. Protista is a kingdom within Eukarya, not a domain.' },
+  { topic:'Microbiology', q:'How many viral particles are estimated to exist on Earth?', opts:['10 trillion','10 quadrillion','10^31','10^31'], correct:2, explanation:'Estimates suggest approximately 10^31 virus particles on Earth — more than all other biological entities combined.' },
+  // Technology
+  { topic:'Technology', q:'What does HTTP stand for?', opts:['HyperText Transfer Protocol','High Traffic Transmission Pathway','Hosted Technology Transfer Protocol','HyperText Translation Programme'], correct:0, explanation:'HTTP (HyperText Transfer Protocol) is the foundation of data communication on the World Wide Web.' },
+  { topic:'Technology', q:'Who is credited with writing the first computer algorithm?', opts:['Alan Turing','Charles Babbage','Ada Lovelace','Grace Hopper'], correct:2, explanation:'Ada Lovelace wrote the first algorithm intended for Charles Babbage\'s Analytical Engine in 1843.' },
+  { topic:'Technology', q:'What does AI stand for in computing?', opts:['Automated Integration','Artificial Intelligence','Advanced Interface','Algorithmic Indexing'], correct:1, explanation:'Artificial Intelligence refers to the simulation of human intelligence processes by computer systems.' },
+  // Art
+  { topic:'Art', q:'Who painted the Sistine Chapel ceiling?', opts:['Leonardo da Vinci','Raphael','Caravaggio','Michelangelo'], correct:3, explanation:'Michelangelo painted the Sistine Chapel ceiling between 1508 and 1512 at the commission of Pope Julius II.' },
+  { topic:'Art', q:'What movement did Pablo Picasso co-found?', opts:['Surrealism','Impressionism','Cubism','Dadaism'], correct:2, explanation:'Picasso and Georges Braque developed Cubism around 1907–1908, revolutionising Western art\'s representation of space.' },
+  { topic:'Art', q:'The Louvre is located in which city?', opts:['Rome','Madrid','London','Paris'], correct:3, explanation:'The Louvre in Paris is the world\'s largest art museum, housing over 380,000 objects including the Mona Lisa.' },
+  // Literature
+  { topic:'Literature', q:'Who wrote "One Hundred Years of Solitude"?', opts:['Mario Vargas Llosa','Jorge Luis Borges','Pablo Neruda','Gabriel García Márquez'], correct:3, explanation:'García Márquez published "Cien años de soledad" in 1967, the defining work of magical realism, earning him the 1982 Nobel Prize.' },
+  { topic:'Literature', q:'In what language did Dante write the Divine Comedy?', opts:['Latin','French','Italian','Greek'], correct:2, explanation:'Dante wrote the Divine Comedy in vernacular Italian, not Latin, helping establish Tuscan as the literary standard for Italian.' },
+  { topic:'Literature', q:'Which novel begins with "It was the best of times, it was the worst of times"?', opts:['Bleak House','Great Expectations','Oliver Twist','A Tale of Two Cities'], correct:3, explanation:'Charles Dickens opened "A Tale of Two Cities" (1859) with this famous antithesis describing revolutionary France and England.' },
+  // Philosophy
+  { topic:'Philosophy', q:'Who wrote "Critique of Pure Reason"?', opts:['Hegel','Nietzsche','Kant','Descartes'], correct:2, explanation:'Immanuel Kant published the Critique of Pure Reason in 1781, one of the most influential texts in Western philosophy.' },
+  { topic:'Philosophy', q:'What is the philosophical concept of "Occam\'s Razor"?', opts:['The most complex explanation is most likely correct','The simplest explanation with fewest assumptions is preferred','Truth is always between two extremes','All knowledge comes from experience'], correct:1, explanation:'Occam\'s Razor states that among competing hypotheses, the one with the fewest assumptions should be selected.' },
+  { topic:'Philosophy', q:'Plato\'s "Allegory of the Cave" describes what philosophical idea?', opts:['The nature of justice','The problem of free will','The difference between perception and reality','The ethics of governance'], correct:2, explanation:'The Allegory of the Cave illustrates how humans mistake sensory experience for true reality, and the philosopher\'s role in seeking deeper truth.' },
+  // AI
+  { topic:'AI', q:'What does "GPT" stand for in AI language models?', opts:['General Processing Technology','Generative Pre-trained Transformer','Guided Prediction Tool','Global Protocol for Training'], correct:1, explanation:'GPT stands for Generative Pre-trained Transformer, a type of large language model architecture.' },
+  { topic:'AI', q:'What is the "Turing Test"?', opts:['A benchmark for computing speed','A test for measuring machine learning accuracy','A conversation test to determine if a machine can exhibit human-like intelligence','A mathematical proof about computational limits'], correct:2, explanation:'Alan Turing proposed the test in 1950: if a machine can converse indistinguishably from a human, it can be considered intelligent.' },
+  // Chemistry
+  { topic:'Chemistry', q:'What is the chemical symbol for gold?', opts:['Go','Gd','Au','Ag'], correct:2, explanation:'Gold\'s symbol Au comes from the Latin "aurum." It\'s one of the few elements known since antiquity.' },
+  { topic:'Chemistry', q:'How many elements are in the periodic table?', opts:['92','108','118','126'], correct:2, explanation:'As of 2023, the periodic table contains 118 confirmed elements, with elements 1-94 occurring naturally.' },
+  { topic:'Chemistry', q:'What is the most electronegative element?', opts:['Oxygen','Chlorine','Fluorine','Nitrogen'], correct:2, explanation:'Fluorine is the most electronegative element on the Pauling scale (3.98), meaning it most strongly attracts electrons.' },
+  // Geopolitics
+  { topic:'Geopolitics', q:'The United Nations was founded in which year?', opts:['1919','1939','1945','1950'], correct:2, explanation:'The UN was founded on 24 October 1945, after World War II, to promote international peace and cooperation.' },
+  { topic:'Geopolitics', q:'The North Atlantic Treaty Organisation (NATO) was founded in which city?', opts:['London','Brussels','Washington D.C.','Paris'], correct:2, explanation:'NATO was established by the North Atlantic Treaty, signed in Washington D.C. on April 4, 1949.' },
+  { topic:'Geopolitics', q:'Which body of water connects the Black Sea to the Mediterranean?', opts:['Strait of Gibraltar','Suez Canal','Bosphorus and Dardanelles','Strait of Hormuz'], correct:2, explanation:'The Turkish Straits — the Bosphorus and Dardanelles — connect the Black Sea to the Aegean and Mediterranean Seas.' },
 ];
 
+let activeQuizSet = [];
+
+function pickQuizSet() {
+  // Pick 5 random questions, no repeats, spread across categories
+  activeQuizSet = shuffle(QUIZ_POOL).slice(0, 5);
+}
+
 function renderQuiz() {
+  if (!activeQuizSet.length) pickQuizSet();
   const container = document.getElementById('quiz-cards');
   container.innerHTML = '';
-  QUIZ_QUESTIONS.forEach((q, idx) => {
+
+  activeQuizSet.forEach((q, idx) => {
     const el = document.createElement('div');
     el.className = 'quiz-card';
     el.innerHTML = `
-      <div class="quiz-num">Question ${idx + 1} of ${QUIZ_QUESTIONS.length} · ${q.topic}</div>
+      <div class="quiz-num">Question ${idx + 1} of 5 · ${q.topic}</div>
       <p class="quiz-question">${q.q}</p>
       <div class="quiz-options">
-        ${q.opts.map((opt, i) => `<button class="quiz-opt" onclick="answerQuiz(this,${i},${q.correct},'${q.explanation.replace(/'/g, "\\'")}',${idx})">${String.fromCharCode(65 + i)}. ${opt}</button>`).join('')}
+        ${q.opts.map((opt, i) => `<button class="quiz-opt" onclick="answerQuiz(this,${i},${q.correct},'${q.explanation.replace(/'/g, "\\'")}',${idx})">${String.fromCharCode(65+i)}. ${opt}</button>`).join('')}
       </div>
       <p class="quiz-feedback" id="qfb-${idx}"></p>`;
     container.appendChild(el);
   });
+}
+
+function shuffleQuiz() {
+  pickQuizSet();
+  renderQuiz();
+  document.getElementById('feed').scrollTop = 0;
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -812,5 +866,6 @@ window.toggleSave = toggleSave;
 window.shareVia = shareVia;
 window.answerQuiz = answerQuiz;
 window.removeSaved = removeSaved;
+window.shuffleQuiz = shuffleQuiz;
 
 document.addEventListener('DOMContentLoaded', init);
