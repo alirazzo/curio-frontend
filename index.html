@@ -18,19 +18,30 @@
 <body>
   <div id="app" data-theme="dark">
 
-    <div class="status-bar">
-      <span class="offline-pill" id="offline-pill" style="display:none">● offline</span>
-    </div>
-
-    <header class="topbar" id="topbar">
+    <header class="topbar">
       <div class="logo">curi<em>o</em></div>
       <div class="topbar-actions">
+
+        <!-- Shuffle — dice icon (less angular) -->
         <button class="icon-btn shuf-btn" id="shuf-btn" aria-label="Shuffle" style="display:none">
-          <svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5"/>
+            <circle cx="8.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/>
+            <circle cx="15.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/>
+            <circle cx="12"   cy="12"  r="1.4" fill="currentColor" stroke="none"/>
+            <circle cx="8.5" cy="15.5" r="1.4" fill="currentColor" stroke="none"/>
+            <circle cx="15.5" cy="15.5" r="1.4" fill="currentColor" stroke="none"/>
+          </svg>
         </button>
+
+        <!-- Filter dropdown -->
         <div class="filter-wrap" id="filter-wrap" style="display:none">
           <button class="icon-btn filter-btn" id="filter-btn" aria-label="Filter by topic">
-            <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round">
+              <line x1="4" y1="6" x2="20" y2="6"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+              <line x1="11" y1="18" x2="13" y2="18"/>
+            </svg>
           </button>
           <div class="filter-dropdown" id="filter-dropdown">
             <button class="filter-opt active" data-topic="all">All categories</button>
@@ -38,9 +49,9 @@
             <button class="filter-opt" data-topic="medicine">Medicine</button>
             <button class="filter-opt" data-topic="microbiology">Microbiology</button>
             <button class="filter-opt" data-topic="science">Science</button>
-            <button class="filter-opt" data-topic="ai">AI</button>
+            <button class="filter-opt" data-topic="ai">Artificial Intelligence</button>
             <button class="filter-opt" data-topic="chemistry">Chemistry</button>
-            <button class="filter-opt" data-topic="space">Space</button>
+            <button class="filter-opt" data-topic="space">Space &amp; Astronomy</button>
             <button class="filter-opt" data-topic="biology">Biology</button>
             <button class="filter-opt" data-topic="technology">Technology</button>
             <button class="filter-opt" data-topic="history">History</button>
@@ -49,13 +60,16 @@
             <button class="filter-opt" data-topic="environment">Environment</button>
             <button class="filter-opt" data-topic="geopolitics">Geopolitics</button>
             <button class="filter-opt" data-topic="psychology">Psychology</button>
-            <button class="filter-opt" data-topic="art">Art</button>
+            <button class="filter-opt" data-topic="art">Art &amp; Design</button>
             <button class="filter-opt" data-topic="literature">Literature</button>
             <button class="filter-opt" data-topic="philosophy">Philosophy</button>
+            <button class="filter-opt" data-topic="news">Latest News</button>
           </div>
         </div>
+
+        <!-- Theme toggle -->
         <button class="icon-btn" id="theme-btn" aria-label="Toggle theme">
-          <svg id="theme-icon" viewBox="0 0 24 24">
+          <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round">
             <circle cx="12" cy="12" r="5"/>
             <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
             <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
@@ -63,76 +77,44 @@
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
           </svg>
         </button>
-        <button class="icon-btn" id="notif-btn" aria-label="Notifications">
-          <svg viewBox="0 0 24 24">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
-        </button>
       </div>
     </header>
 
     <main class="feed" id="feed">
-      <div id="feed-home" class="feed-section">
-        <div class="loading-state" id="home-loading">
+
+      <!-- Discover tab -->
+      <div id="feed-discover" class="feed-section">
+        <div class="loading-state" id="discover-loading">
           <div class="spinner"></div>
           <p>Gathering discoveries…</p>
         </div>
-        <div id="home-otd"></div>
-        <p class="section-label" id="home-disc-label" style="display:none">Today's discoveries</p>
-        <div id="home-cards"></div>
+        <div id="discover-otd"></div>
+        <div id="discover-cards"></div>
       </div>
 
-      <div id="feed-news" class="feed-section" style="display:none">
-        <div class="loading-state" id="news-loading">
-          <div class="spinner"></div>
-          <p>Loading headlines…</p>
-        </div>
-        <div class="breaking-band" id="breaking-band" style="display:none">
-          <span class="breaking-pill">Breaking</span>
-          <span class="breaking-line"></span>
-        </div>
-        <p class="section-label" id="news-lbl" style="display:none">Latest headlines</p>
-        <div id="news-cards"></div>
-      </div>
-
+      <!-- Saved tab -->
       <div id="feed-saved" class="feed-section" style="display:none">
-        <p class="section-label">Saved items</p>
+        <p class="section-label">Saved articles</p>
         <div id="saved-list"></div>
-        <p class="empty-state" id="saved-empty" style="display:none">Nothing saved yet. Tap the bookmark icon on any card.</p>
+        <p class="empty-state" id="saved-empty" style="display:none">Nothing saved yet — tap the bookmark on any card.</p>
       </div>
 
-      <div id="feed-quiz" class="feed-section" style="display:none">
-        <div class="section-header">
-          <p class="section-label">Daily quiz</p>
-          <button class="quiz-shuffle-btn" onclick="shuffleQuiz()" aria-label="New questions">
-            <svg viewBox="0 0 24 24"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/></svg>
-            New questions
-          </button>
-        </div>
-        <div id="quiz-cards"></div>
-      </div>
     </main>
 
     <nav class="bottom-nav">
-      <button class="nav-item active" data-tab="home">
-        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span>Home</span>
-      </button>
-      <button class="nav-item" data-tab="news">
-        <span class="nav-icon-wrap">
-          <svg viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6z"/></svg>
-          <span class="nav-badge" id="news-badge"></span>
-        </span>
-        <span>News</span>
+      <button class="nav-item active" data-tab="discover">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <span>Discover</span>
       </button>
       <button class="nav-item" data-tab="saved">
-        <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+        </svg>
         <span>Saved</span>
-      </button>
-      <button class="nav-item" data-tab="quiz">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <span>Quiz</span>
       </button>
     </nav>
 
