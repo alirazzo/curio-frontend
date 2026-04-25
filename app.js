@@ -1,4 +1,3 @@
-
 'use strict';
 
 // ─────────────────────────────────────────────────────────────────
@@ -52,38 +51,7 @@ async function apiFetch(path) {
   return r.json();
 }
 
-async function fetchOnThisDay() {
-  const d = new Date();
-  const m   = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  const months = ['January','February','March','April','May','June',
-                  'July','August','September','October','November','December'];
-  try {
-    const r = await fetch(
-      'https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/' + m + '/' + day,
-      { signal: AbortSignal.timeout(8000) }
-    );
-    const data = await r.json();
-    const events = (data.events || []).filter(e => e.pages && e.pages[0] && e.pages[0].thumbnail);
-    if (!events.length) return null;
-    const evt = events[Math.floor(Math.random() * Math.min(5, events.length))];
-    const pg  = evt.pages[0];
-    return {
-      id:          'otd_' + evt.year,
-      source:      'wikipedia.org',
-      sourceLabel: 'Wikipedia',
-      verified:    true,
-      title:       evt.year + ' — ' + evt.text,
-      excerpt:     stripHtml(pg.extract || evt.text).slice(0, 240) + '…',
-      image:       pg.thumbnail ? pg.thumbnail.source : null,
-      url:         pg.content_urls ? pg.content_urls.desktop.page : 'https://en.wikipedia.org',
-      topic:       'history',
-      readTime:    '2 min',
-      type:        'otd',
-      dateLabel:   'On this day — ' + months[d.getMonth()] + ' ' + d.getDate(),
-    };
-  } catch { return null; }
-}
+
 
 // No localStorage cache — every open fetches fresh content (Instagram-style)
 async function loadContent() {
@@ -98,10 +66,17 @@ async function loadContent() {
 //  CARD RENDERING
 // ─────────────────────────────────────────────────────────────────
 const TOPIC_ICONS = {
-  pharma:'🔬', medicine:'🩺', microbiology:'🦠', science:'⚗️', ai:'🤖',
-  chemistry:'⚗️', space:'🔭', biology:'🌱', technology:'💡', history:'🏛',
-  geography:'🌍', economics:'📊', environment:'🌿', geopolitics:'🌐',
-  psychology:'🧠', art:'🎨', literature:'📚', philosophy:'💭', news:'📰', general:'📖',
+  'life-sciences':     '🧬',
+  'medicine':          '🩺',
+  'pharma':            '💊',
+  'ai-tech':           '🤖',
+  'physical-sciences': '⚗️',
+  'space':             '🔭',
+  'earth':             '🌍',
+  'society':           '🌐',
+  'history':           '🏛',
+  'arts-culture':      '🎨',
+  'general':           '📖',
 };
 
 function tagClass(topic) {
@@ -110,12 +85,17 @@ function tagClass(topic) {
 
 function tagLabel(topic) {
   const labels = {
-    pharma:'Pharma', medicine:'Medicine', microbiology:'Microbiology',
-    science:'Science', ai:'AI', chemistry:'Chemistry', space:'Space',
-    biology:'Biology', technology:'Technology', history:'History',
-    geography:'Geography', economics:'Economics', environment:'Environment',
-    geopolitics:'Geopolitics', psychology:'Psychology', art:'Art',
-    literature:'Literature', philosophy:'Philosophy', news:'News', general:'General',
+    'life-sciences':     'Life Sciences',
+    'medicine':          'Medicine',
+    'pharma':            'Pharma',
+    'ai-tech':           'AI & Tech',
+    'physical-sciences': 'Physical Sciences',
+    'space':             'Space',
+    'earth':             'Earth',
+    'society':           'Society',
+    'history':           'History',
+    'arts-culture':      'Arts & Culture',
+    'general':           'General',
   };
   return labels[topic] || (topic ? topic.charAt(0).toUpperCase() + topic.slice(1) : 'General');
 }
@@ -213,17 +193,7 @@ function renderDiscover() {
   cards.forEach(card => container.appendChild(buildCard(card, false)));
 }
 
-function renderOtd(card) {
-  if (!card) return;
-  // Register in cache
-  cardCache.set(card.id, card);
-  const container = document.getElementById('discover-otd');
-  const label     = document.createElement('p');
-  label.className = 'otd-label';
-  label.textContent = card.dateLabel || 'On this day';
-  container.appendChild(label);
-  container.appendChild(buildCard(card, true));
-}
+
 
 // ─────────────────────────────────────────────────────────────────
 //  RENDER SAVED
@@ -490,13 +460,8 @@ async function init() {
   const loadingEl = document.getElementById('discover-loading');
   try {
     loadingEl.style.display = 'flex';
-    const [otdCard] = await Promise.all([
-      fetchOnThisDay().catch(() => null),
-      loadContent(),
-    ]);
-    loadingEl.style.display = 'none';
-    if (otdCard) renderOtd(otdCard);
-    renderDiscover();
+    await loadContent();
+    loadingEl.style.display = 'none';    renderDiscover();
   } catch (err) {
     loadingEl.innerHTML = '<div class="spinner"></div><p>Server waking up… <small>(~30s)</small></p>';
     setTimeout(async () => {
@@ -505,9 +470,7 @@ async function init() {
           fetchOnThisDay().catch(() => null),
           loadContent(),
         ]);
-        loadingEl.style.display = 'none';
-        if (otdCard) renderOtd(otdCard);
-        renderDiscover();
+        loadingEl.style.display = 'none';        renderDiscover();
       } catch {
         loadingEl.innerHTML = '<p class="empty-state">Could not connect. Check your connection and reload.</p>';
       }
