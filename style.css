@@ -91,27 +91,18 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:#000}
 .card-meta{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
 .topic-tag{font-size:9px;font-weight:500;letter-spacing:.7px;text-transform:uppercase;padding:3px 6px;border-radius:4px}
 
-/* Topic colours */
-.tag-pharma      {background:#0a4a3a;color:#7DE0BF}
-.tag-medicine    {background:#0a2a40;color:#85C8EB}
-.tag-microbiology{background:#1a0a40;color:#C0B5F4}
-.tag-science     {background:#0F6E56;color:#9FE1CB}
-.tag-ai          {background:#2a1a40;color:#D0C5F4}
-.tag-chemistry   {background:#2a0a1a;color:#F4B5D0}
-.tag-space       {background:#0a0a2a;color:#ABABF5}
-.tag-biology     {background:#0a2a0a;color:#90DD90}
-.tag-technology  {background:#1a1a2a;color:#C0C0F0}
-.tag-history     {background:#3a1a05;color:#FAC775}
-.tag-geography   {background:#0a1a3a;color:#85C4F4}
-.tag-economics   {background:#0a2a0a;color:#90DF90}
-.tag-environment {background:#0a1a0a;color:#80D080}
-.tag-geopolitics {background:#3a0a0a;color:#F4A0A0}
-.tag-psychology  {background:#2a0a2a;color:#E0A0E0}
-.tag-art         {background:#3a0a2a;color:#F4C0D4}
-.tag-literature  {background:#2a1a0a;color:#E0C090}
-.tag-philosophy  {background:#1a1a1a;color:#D0D0D0}
-.tag-news        {background:#3a1010;color:#F7C1C1}
-.tag-general     {background:#222222;color:#D0CCCC}
+/* Topic colours — 10 categories */
+.tag-life-sciences     {background:#0a2a18;color:#7DE0BF}
+.tag-medicine          {background:#0a1f30;color:#85C8EB}
+.tag-pharma            {background:#1a0a30;color:#C0B5F4}
+.tag-ai-tech           {background:#1a1a2a;color:#C0C0F0}
+.tag-physical-sciences {background:#0F3030;color:#9FE1CB}
+.tag-space             {background:#0a0a2a;color:#ABABF5}
+.tag-earth             {background:#0a1a0a;color:#90DD90}
+.tag-society           {background:#2a1a0a;color:#E8C890}
+.tag-history           {background:#2a0f05;color:#FAC775}
+.tag-arts-culture      {background:#2a0a18;color:#F4B8CE}
+.tag-general           {background:#1a1a1a;color:#D0CCCC}
 
 .source-label{font-size:12px;color:var(--t3);display:flex;align-items:center;gap:3px}
 .verified-check svg{width:9px;height:9px;stroke:var(--acc);fill:none;stroke-width:2.5}
