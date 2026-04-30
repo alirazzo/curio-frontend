@@ -158,16 +158,10 @@ function buildCard(card, isOtd) {
           ${card.readTime || '3 min'}
         </span>
       </div>
-      <h2 class="card-title">${card.title || ''}</h2>
-      <p class="card-excerpt">${card.excerpt || ''}</p>
-      <a class="card-link" href="${card.url || '#'}" target="_blank" rel="noopener noreferrer">
-        Read on ${card.sourceLabel || card.source || 'source'}
-        <svg viewBox="0 0 24 24">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-          <polyline points="15 3 21 3 21 9"/>
-          <line x1="10" y1="14" x2="21" y2="3"/>
-        </svg>
+      <a class="card-title-link" href="${card.url || '#'}" target="_blank" rel="noopener noreferrer">
+        <h2 class="card-title">${card.title || ''}</h2>
       </a>
+      <p class="card-excerpt">${card.excerpt || ''}</p>
       ${cardActionsHtml(card)}
     </div>`;
   return el;
