@@ -450,21 +450,41 @@ async function init() {
     if (!localStorage.getItem('curio_hide_install')) showInstallBanner(e);
   });
 
+
+  // Auto-refresh when user returns to the app
+  // Tracks when content was last loaded
+  let lastLoadTime = Date.now();
+  const REFRESH_AFTER_MS = 30 * 60 * 1000; // 30 minutes away = fresh feed on return
+
+  async function refreshIfStale() {
+    if (state.tab !== 'discover') return;
+    if (Date.now() - lastLoadTime < REFRESH_AFTER_MS) return;
+    lastLoadTime = Date.now();
+    await doShuffle();
+  }
+
+  // Triggers: tab becomes visible again, or window gets focus (home screen re-open)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') refreshIfStale();
+  });
+  window.addEventListener('focus', refreshIfStale);
+
   // Load content — no localStorage cache, always fresh
   const loadingEl = document.getElementById('discover-loading');
   try {
     loadingEl.style.display = 'flex';
     await loadContent();
-    loadingEl.style.display = 'none';    renderDiscover();
+    lastLoadTime = Date.now();
+    loadingEl.style.display = 'none';
+    renderDiscover();
   } catch (err) {
     loadingEl.innerHTML = '<div class="spinner"></div><p>Server waking up… <small>(~30s)</small></p>';
     setTimeout(async () => {
       try {
-        const [otdCard] = await Promise.all([
-          fetchOnThisDay().catch(() => null),
-          loadContent(),
-        ]);
-        loadingEl.style.display = 'none';        renderDiscover();
+        await loadContent();
+        lastLoadTime = Date.now();
+        loadingEl.style.display = 'none';
+        renderDiscover();
       } catch {
         loadingEl.innerHTML = '<p class="empty-state">Could not connect. Check your connection and reload.</p>';
       }
