@@ -1,3 +1,4 @@
+
 'use strict';
 
 // ─────────────────────────────────────────────────────────────────
@@ -50,8 +51,6 @@ async function apiFetch(path) {
   if (!r.ok) throw new Error('Backend ' + r.status + ': ' + path);
   return r.json();
 }
-
-
 
 // No localStorage cache — every open fetches fresh content (Instagram-style)
 async function loadContent() {
@@ -186,8 +185,6 @@ function renderDiscover() {
 
   cards.forEach(card => container.appendChild(buildCard(card, false)));
 }
-
-
 
 // ─────────────────────────────────────────────────────────────────
 //  RENDER SAVED
@@ -450,31 +447,33 @@ async function init() {
     if (!localStorage.getItem('curio_hide_install')) showInstallBanner(e);
   });
 
+  // Auto-refresh: track when page was hidden, refresh if away > 5 minutes
+  let hiddenAt = null;
+  const REFRESH_AFTER_MS = 5 * 60 * 1000;
 
-  // Auto-refresh when user returns to the app
-  // Tracks when content was last loaded
-  let lastLoadTime = Date.now();
-  const REFRESH_AFTER_MS = 30 * 60 * 1000; // 30 minutes away = fresh feed on return
-
-  async function refreshIfStale() {
-    if (state.tab !== 'discover') return;
-    if (Date.now() - lastLoadTime < REFRESH_AFTER_MS) return;
-    lastLoadTime = Date.now();
-    await doShuffle();
-  }
-
-  // Triggers: tab becomes visible again, or window gets focus (home screen re-open)
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') refreshIfStale();
+  document.addEventListener('visibilitychange', async () => {
+    if (document.hidden) {
+      hiddenAt = Date.now();
+    } else {
+      if (hiddenAt && Date.now() - hiddenAt > REFRESH_AFTER_MS) {
+        hiddenAt = null;
+        if (state.tab === 'discover') await doShuffle();
+      } else {
+        hiddenAt = null;
+      }
+    }
   });
-  window.addEventListener('focus', refreshIfStale);
+
+  // Also catch home-screen re-opens via pageshow (fires on bfcache restore)
+  window.addEventListener('pageshow', async (e) => {
+    if (e.persisted && state.tab === 'discover') await doShuffle();
+  });
 
   // Load content — no localStorage cache, always fresh
   const loadingEl = document.getElementById('discover-loading');
   try {
     loadingEl.style.display = 'flex';
     await loadContent();
-    lastLoadTime = Date.now();
     loadingEl.style.display = 'none';
     renderDiscover();
   } catch (err) {
@@ -482,7 +481,6 @@ async function init() {
     setTimeout(async () => {
       try {
         await loadContent();
-        lastLoadTime = Date.now();
         loadingEl.style.display = 'none';
         renderDiscover();
       } catch {
