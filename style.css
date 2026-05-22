@@ -58,8 +58,13 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:#000}
 .filter-opt.active{color:var(--acc);font-weight:500}
 
 /* ── Feed ── */
-.feed{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--bg);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.feed{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--bg);-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-y:none}
 .feed::-webkit-scrollbar{display:none}
+/* ── Pull to Refresh ── */
+#ptr-indicator{height:0;overflow:hidden;opacity:0;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:height .15s ease,opacity .15s ease}
+#ptr-indicator.ready .ptr-spinner{border-top-color:var(--acc)}
+#ptr-indicator.loading .ptr-spinner{animation:spin .6s linear infinite}
+.ptr-spinner{width:22px;height:22px;border-radius:50%;border:2px solid var(--brd);border-top-color:var(--t3);transition:border-top-color .2s}
 .feed-section{padding:10px 0 8px}
 .section-label{font-size:10px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:var(--t3);padding:4px 14px 6px}
 
