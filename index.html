@@ -22,18 +22,6 @@
       <div class="logo">curi<em>o</em></div>
       <div class="topbar-actions">
 
-        <!-- Shuffle — dice icon (less angular) -->
-        <button class="icon-btn shuf-btn" id="shuf-btn" aria-label="Shuffle" style="display:none">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="2" width="20" height="20" rx="5"/>
-            <circle cx="8.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/>
-            <circle cx="15.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/>
-            <circle cx="12"   cy="12"  r="1.4" fill="currentColor" stroke="none"/>
-            <circle cx="8.5" cy="15.5" r="1.4" fill="currentColor" stroke="none"/>
-            <circle cx="15.5" cy="15.5" r="1.4" fill="currentColor" stroke="none"/>
-          </svg>
-        </button>
-
         <!-- Filter dropdown -->
         <div class="filter-wrap" id="filter-wrap" style="display:none">
           <button class="icon-btn filter-btn" id="filter-btn" aria-label="Filter by topic">
@@ -72,6 +60,10 @@
     </header>
 
     <main class="feed" id="feed">
+      <!-- Pull to refresh indicator -->
+      <div id="ptr-indicator">
+        <div class="ptr-spinner"></div>
+      </div>
 
       <!-- Discover tab -->
       <div id="feed-discover" class="feed-section">
