@@ -61,10 +61,14 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:#000}
 .feed{flex:1;overflow-y:auto;overflow-x:hidden;background:var(--bg);-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-y:none}
 .feed::-webkit-scrollbar{display:none}
 /* ── Pull to Refresh ── */
-#ptr-indicator{height:0;overflow:hidden;opacity:0;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:height .15s ease,opacity .15s ease}
-#ptr-indicator.ready .ptr-spinner{border-top-color:var(--acc)}
-#ptr-indicator.loading .ptr-spinner{animation:spin .6s linear infinite}
-.ptr-spinner{width:22px;height:22px;border-radius:50%;border:2px solid var(--brd);border-top-color:var(--t3);transition:border-top-color .2s}
+#ptr-indicator{height:0;overflow:hidden;opacity:0;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--bg);transition:height .15s ease,opacity .15s ease}
+.ptr-arrow{width:20px;height:20px;stroke:var(--t3);flex-shrink:0;transition:transform .15s ease,stroke .15s}
+#ptr-indicator.ready .ptr-arrow{stroke:var(--acc)}
+#ptr-indicator.loading .ptr-arrow{stroke:var(--acc);animation:ptr-spin .7s linear infinite}
+#ptr-indicator.message .ptr-arrow{display:none}
+.ptr-label{font-size:12px;color:var(--t3);font-family:'DM Sans',sans-serif}
+#ptr-indicator.message .ptr-label{color:var(--t2)}
+@keyframes ptr-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 .feed-section{padding:10px 0 8px}
 .section-label{font-size:10px;font-weight:500;letter-spacing:1.4px;text-transform:uppercase;color:var(--t3);padding:4px 14px 6px}
 
