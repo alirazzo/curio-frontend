@@ -1,4 +1,3 @@
-
 'use strict';
 
 // ─────────────────────────────────────────────────────────────────
@@ -284,8 +283,6 @@ function setTab(tab) {
 
   document.getElementById('feed-discover').style.display = tab === 'discover' ? 'block' : 'none';
   document.getElementById('feed-saved').style.display    = tab === 'saved'    ? 'block' : 'none';
-
-  document.getElementById('shuf-btn').style.display    = tab === 'discover' ? 'flex'  : 'none';
   document.getElementById('filter-wrap').style.display = tab === 'discover' ? 'block' : 'none';
 
   if (tab === 'saved') renderSaved();
@@ -313,16 +310,58 @@ function toggleFilterDropdown() {
 // ─────────────────────────────────────────────────────────────────
 //  SHUFFLE
 // ─────────────────────────────────────────────────────────────────
-async function doShuffle() {
-  const btn        = document.getElementById('shuf-btn');
-  const cards      = document.getElementById('discover-cards');
-  const loadingEl  = document.getElementById('discover-loading');
+// ─────────────────────────────────────────────────────────────────
+//  PULL TO REFRESH
+// ─────────────────────────────────────────────────────────────────
+function setupPullToRefresh() {
+  const feed      = document.getElementById('feed');
+  const ptr       = document.getElementById('ptr-indicator');
+  let startY      = 0;
+  let pulling     = false;
+  let triggered   = false;
+  const THRESHOLD = 72;
 
-  btn.classList.add('spinning');
-  cards.innerHTML  = '';
+  feed.addEventListener('touchstart', e => {
+    if (feed.scrollTop === 0 && state.tab === 'discover') {
+      startY    = e.touches[0].clientY;
+      pulling   = true;
+      triggered = false;
+    }
+  }, { passive: true });
+
+  feed.addEventListener('touchmove', e => {
+    if (!pulling) return;
+    const dist    = e.touches[0].clientY - startY;
+    if (dist <= 0) { pulling = false; ptr.style.height = '0'; return; }
+    const clamped = Math.min(dist * 0.45, THRESHOLD + 16);
+    ptr.style.height  = clamped + 'px';
+    ptr.style.opacity = Math.min(clamped / THRESHOLD, 1);
+    if (clamped >= THRESHOLD && !triggered) { triggered = true;  ptr.classList.add('ready'); }
+    else if (clamped < THRESHOLD)           { triggered = false; ptr.classList.remove('ready'); }
+  }, { passive: true });
+
+  feed.addEventListener('touchend', async () => {
+    if (!pulling) return;
+    pulling = false;
+    ptr.classList.remove('ready');
+    if (triggered) {
+      ptr.style.height  = '48px';
+      ptr.style.opacity = '1';
+      ptr.classList.add('loading');
+      await doShuffle();
+    }
+    ptr.style.height  = '0';
+    ptr.style.opacity = '0';
+    ptr.classList.remove('loading');
+  });
+}
+
+async function doShuffle() {
+  const cards     = document.getElementById('discover-cards');
+  const loadingEl = document.getElementById('discover-loading');
+  cards.innerHTML = '';
   loadingEl.style.display = 'flex';
   loadingEl.innerHTML = '<div class="spinner"></div><p>Loading new discoveries…</p>';
-
   try {
     await loadContent();
     loadingEl.style.display = 'none';
@@ -336,12 +375,10 @@ async function doShuffle() {
         renderDiscover();
       } catch {
         loadingEl.style.display = 'none';
-        cards.innerHTML = '<p class="empty-state">Could not reach the server. Try again in a moment.</p>';
+        cards.innerHTML = '<p class="empty-state">Could not reach the server. Pull down to try again.</p>';
       }
     }, 35000);
   }
-
-  btn.classList.remove('spinning');
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -433,15 +470,14 @@ async function init() {
   });
 
   // Shuffle
-  document.getElementById('shuf-btn').addEventListener('click', doShuffle);
 
   // Show controls for discover tab
-  document.getElementById('shuf-btn').style.display    = 'flex';
   document.getElementById('filter-wrap').style.display = 'block';
 
   // PWA
   registerSW();
   startKeepAlive();
+  setupPullToRefresh();
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     if (!localStorage.getItem('curio_hide_install')) showInstallBanner(e);
