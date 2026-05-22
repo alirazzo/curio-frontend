@@ -313,6 +313,30 @@ function toggleFilterDropdown() {
 // ─────────────────────────────────────────────────────────────────
 //  PULL TO REFRESH
 // ─────────────────────────────────────────────────────────────────
+const REFRESH_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
+let lastRefreshTime = 0;
+
+function timeUntilRefresh() {
+  const ms   = REFRESH_COOLDOWN_MS - (Date.now() - lastRefreshTime);
+  if (ms <= 0) return null;
+  const mins = Math.ceil(ms / 60000);
+  return mins === 1 ? '1 minute' : mins + ' minutes';
+}
+
+function showPTRMessage(msg, duration = 2200) {
+  const ptr = document.getElementById('ptr-indicator');
+  ptr.style.height  = '48px';
+  ptr.style.opacity = '1';
+  ptr.classList.add('message');
+  ptr.querySelector('.ptr-label').textContent = msg;
+  setTimeout(() => {
+    ptr.style.height  = '0';
+    ptr.style.opacity = '0';
+    ptr.classList.remove('message');
+    ptr.querySelector('.ptr-label').textContent = '';
+  }, duration);
+}
+
 function setupPullToRefresh() {
   const feed      = document.getElementById('feed');
   const ptr       = document.getElementById('ptr-indicator');
@@ -332,10 +356,14 @@ function setupPullToRefresh() {
   feed.addEventListener('touchmove', e => {
     if (!pulling) return;
     const dist    = e.touches[0].clientY - startY;
-    if (dist <= 0) { pulling = false; ptr.style.height = '0'; return; }
+    if (dist <= 0) { pulling = false; ptr.style.height = '0'; ptr.style.opacity = '0'; return; }
     const clamped = Math.min(dist * 0.45, THRESHOLD + 16);
     ptr.style.height  = clamped + 'px';
     ptr.style.opacity = Math.min(clamped / THRESHOLD, 1);
+    // Rotate arrow as user pulls — 0° at start, 180° at threshold
+    const rotation = Math.min((clamped / THRESHOLD) * 180, 180);
+    const arrow = ptr.querySelector('.ptr-arrow');
+    if (arrow) arrow.style.transform = `rotate(${rotation}deg)`;
     if (clamped >= THRESHOLD && !triggered) { triggered = true;  ptr.classList.add('ready'); }
     else if (clamped < THRESHOLD)           { triggered = false; ptr.classList.remove('ready'); }
   }, { passive: true });
@@ -344,15 +372,26 @@ function setupPullToRefresh() {
     if (!pulling) return;
     pulling = false;
     ptr.classList.remove('ready');
+    const arrow = ptr.querySelector('.ptr-arrow');
+    if (arrow) arrow.style.transform = '';
+
     if (triggered) {
-      ptr.style.height  = '48px';
-      ptr.style.opacity = '1';
-      ptr.classList.add('loading');
-      await doShuffle();
+      const wait = timeUntilRefresh();
+      if (wait) {
+        showPTRMessage('Try again in ' + wait);
+      } else {
+        ptr.style.height  = '48px';
+        ptr.style.opacity = '1';
+        ptr.classList.add('loading');
+        await doShuffle();
+        ptr.style.height  = '0';
+        ptr.style.opacity = '0';
+        ptr.classList.remove('loading');
+      }
+    } else {
+      ptr.style.height  = '0';
+      ptr.style.opacity = '0';
     }
-    ptr.style.height  = '0';
-    ptr.style.opacity = '0';
-    ptr.classList.remove('loading');
   });
 }
 
@@ -364,6 +403,7 @@ async function doShuffle() {
   loadingEl.innerHTML = '<div class="spinner"></div><p>Loading new discoveries…</p>';
   try {
     await loadContent();
+    lastRefreshTime = Date.now();
     loadingEl.style.display = 'none';
     renderDiscover();
   } catch {
