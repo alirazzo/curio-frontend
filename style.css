@@ -127,20 +127,20 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:#000}
 /* ── Card actions ── */
 .card-actions{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:.5px solid var(--brd)}
 .save-btn{
-  display:flex;align-items:center;gap:5px;background:none;border:none;
-  cursor:pointer;padding:4px 6px;border-radius:6px;font-family:'DM Sans',sans-serif;
+  display:flex;align-items:center;gap:6px;background:none;border:none;
+  cursor:pointer;padding:7px 10px;border-radius:8px;font-family:'DM Sans',sans-serif;
   transition:background .15s;
 }
 .save-btn:hover{background:var(--brd)}
-.save-btn svg{width:15px;height:15px;stroke:var(--t3);fill:none;stroke-width:1.8;transition:stroke .15s,fill .15s}
+.save-btn svg{width:19px;height:19px;stroke:var(--t3);fill:none;stroke-width:1.8;transition:stroke .15s,fill .15s}
 .save-btn.saved svg{stroke:var(--acc);fill:var(--acc)}
 .copy-btn{
-  display:flex;align-items:center;gap:4px;background:none;border:none;
-  cursor:pointer;padding:4px 6px;border-radius:6px;font-family:'DM Sans',sans-serif;
-  font-size:11px;color:var(--t3);transition:background .15s,color .15s;
+  display:flex;align-items:center;gap:6px;background:none;border:none;
+  cursor:pointer;padding:7px 10px;border-radius:8px;font-family:'DM Sans',sans-serif;
+  font-size:13px;color:var(--t3);transition:background .15s,color .15s;
 }
 .copy-btn:hover{background:var(--brd);color:var(--txt)}
-.copy-btn svg{width:14px;height:14px;stroke:var(--t3);fill:none;stroke-width:1.8;transition:stroke .15s}
+.copy-btn svg{width:17px;height:17px;stroke:var(--t3);fill:none;stroke-width:1.8;transition:stroke .15s}
 .copy-btn.copied{color:var(--acc)}
 .copy-btn.copied svg{stroke:var(--acc)}
 
