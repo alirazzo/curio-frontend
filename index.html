@@ -22,7 +22,24 @@
       <div class="logo">curi<em>o</em></div>
       <div class="topbar-actions">
 
-        <!-- Filter dropdown -->
+        <!-- Language filter -->
+        <div class="filter-wrap" id="lang-wrap">
+          <button class="icon-btn filter-btn" id="lang-btn" aria-label="Filter by language">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+          </button>
+          <div class="filter-dropdown" id="lang-dropdown">
+            <button class="filter-opt active" data-lang="all">🌐 All languages</button>
+            <button class="filter-opt" data-lang="en">🇬🇧 English</button>
+            <button class="filter-opt lang-soon" data-lang="fr">🇫🇷 French <span class="soon-tag">soon</span></button>
+            <button class="filter-opt lang-soon" data-lang="ar">🇸🇦 Arabic <span class="soon-tag">soon</span></button>
+          </div>
+        </div>
+
+        <!-- Category filter dropdown -->
         <div class="filter-wrap" id="filter-wrap" style="display:none">
           <button class="icon-btn filter-btn" id="filter-btn" aria-label="Filter by topic">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round">
@@ -33,14 +50,13 @@
           </button>
           <div class="filter-dropdown" id="filter-dropdown">
             <button class="filter-opt active" data-topic="all">All categories</button>
-            <button class="filter-opt" data-topic="life-sciences">Life Sciences</button>
+            <button class="filter-opt" data-topic="life-sciences-pharma">Life Sciences &amp; Pharma</button>
             <button class="filter-opt" data-topic="medicine">Medicine &amp; Health</button>
-            <button class="filter-opt" data-topic="pharma">Pharma &amp; Biotech</button>
             <button class="filter-opt" data-topic="ai-tech">AI &amp; Technology</button>
             <button class="filter-opt" data-topic="physical-sciences">Physical Sciences</button>
             <button class="filter-opt" data-topic="space">Space &amp; Cosmos</button>
             <button class="filter-opt" data-topic="earth">Earth &amp; Environment</button>
-            <button class="filter-opt" data-topic="society">Society, Mind &amp; Economy</button>
+            <button class="filter-opt" data-topic="society-economics">Society &amp; Economics</button>
             <button class="filter-opt" data-topic="history">History &amp; Civilisation</button>
             <button class="filter-opt" data-topic="arts-culture">Arts &amp; Culture</button>
           </div>
