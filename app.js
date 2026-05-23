@@ -64,14 +64,13 @@ async function loadContent() {
 //  CARD RENDERING
 // ─────────────────────────────────────────────────────────────────
 const TOPIC_ICONS = {
-  'life-sciences':     '🧬',
+  'life-sciences-pharma': '🧬',
   'medicine':          '🩺',
-  'pharma':            '💊',
   'ai-tech':           '🤖',
   'physical-sciences': '⚗️',
   'space':             '🔭',
   'earth':             '🌍',
-  'society':           '🌐',
+  'society-economics': '🌐',
   'history':           '🏛',
   'arts-culture':      '🎨',
   'general':           '📖',
@@ -83,14 +82,13 @@ function tagClass(topic) {
 
 function tagLabel(topic) {
   const labels = {
-    'life-sciences':     'Life Sciences',
+    'life-sciences-pharma': 'Life Sciences & Pharma',
     'medicine':          'Medicine',
-    'pharma':            'Pharma',
     'ai-tech':           'AI & Tech',
     'physical-sciences': 'Physical Sciences',
     'space':             'Space',
     'earth':             'Earth',
-    'society':           'Society',
+    'society-economics': 'Society & Economics',
     'history':           'History',
     'arts-culture':      'Arts & Culture',
     'general':           'General',
@@ -403,6 +401,7 @@ async function doShuffle() {
   try {
     await loadContent();
     lastRefreshTime = Date.now();
+    localStorage.setItem('curio_last_load', Date.now());
     loadingEl.style.display = 'none';
     renderDiscover();
   } catch {
@@ -492,6 +491,23 @@ async function init() {
   });
 
   // Filter
+  // Language dropdown
+  document.getElementById('lang-btn').addEventListener('click', e => {
+    e.stopPropagation();
+    document.getElementById('lang-dropdown').classList.toggle('open');
+    document.getElementById('filter-dropdown').classList.remove('open');
+  });
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    el.addEventListener('click', () => {
+      if (el.classList.contains('lang-soon')) return;
+      document.querySelectorAll('[data-lang]').forEach(o => o.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('lang-dropdown').classList.remove('open');
+      document.getElementById('lang-btn').classList.toggle('active', el.dataset.lang !== 'all');
+    });
+  });
+
+  // Category filter
   document.getElementById('filter-btn').addEventListener('click', e => {
     e.stopPropagation();
     toggleFilterDropdown();
@@ -501,6 +517,7 @@ async function init() {
   });
   document.addEventListener('click', () => {
     document.getElementById('filter-dropdown').classList.remove('open');
+    document.getElementById('lang-dropdown').classList.remove('open');
   });
 
   // Theme
@@ -522,10 +539,20 @@ async function init() {
     if (!localStorage.getItem('curio_hide_install')) showInstallBanner(e);
   });
 
-  // Auto-refresh on return — bypass PTR cooldown entirely (cooldown is only for manual pulls)
-  // Threshold matches the 1-minute refresh window
+  // Auto-refresh on return
+
+  // Belt-and-suspenders: localStorage timestamp ensures refresh even if
+  // pageshow/visibilitychange don't fire (some Android Chrome versions)
   let hiddenAt = null;
   const RETURN_REFRESH_MS = 60 * 1000; // 1 minute away = fresh feed on return
+  const STORED_KEY = 'curio_last_load';
+  const storedTime = parseInt(localStorage.getItem(STORED_KEY) || '0');
+  if (Date.now() - storedTime > RETURN_REFRESH_MS) {
+    lastRefreshTime = 0;
+    localStorage.setItem(STORED_KEY, Date.now());
+  }
+
+  // Auto-refresh on return — bypass PTR cooldown entirely (cooldown is only for manual pulls)
 
   document.addEventListener('visibilitychange', async () => {
     if (document.hidden) {
