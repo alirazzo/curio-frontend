@@ -100,18 +100,20 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:#000}
 .card-meta{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
 .topic-tag{font-size:9px;font-weight:500;letter-spacing:.7px;text-transform:uppercase;padding:3px 6px;border-radius:4px}
 
-/* Topic colours — 10 categories */
-.tag-life-sciences     {background:#0a2a18;color:#7DE0BF}
+/* Topic colours — 9 categories */
+.tag-life-sciences-pharma{background:#0a2a18;color:#7DE0BF}
 .tag-medicine          {background:#0a1f30;color:#85C8EB}
-.tag-pharma            {background:#1a0a30;color:#C0B5F4}
 .tag-ai-tech           {background:#1a1a2a;color:#C0C0F0}
 .tag-physical-sciences {background:#0F3030;color:#9FE1CB}
 .tag-space             {background:#0a0a2a;color:#ABABF5}
 .tag-earth             {background:#0a1a0a;color:#90DD90}
-.tag-society           {background:#2a1a0a;color:#E8C890}
+.tag-society-economics {background:#2a1a0a;color:#E8C890}
 .tag-history           {background:#2a0f05;color:#FAC775}
 .tag-arts-culture      {background:#2a0a18;color:#F4B8CE}
 .tag-general           {background:#1a1a1a;color:#D0CCCC}
+/* Language dropdown extras */
+.lang-soon{opacity:.5;cursor:default!important}
+.soon-tag{font-size:9px;background:var(--brd);color:var(--t3);border-radius:3px;padding:1px 5px;margin-left:4px;vertical-align:middle}
 
 .source-label{font-size:13px;color:var(--t3);display:flex;align-items:center;gap:3px}
 .verified-check svg{width:9px;height:9px;stroke:var(--acc);fill:none;stroke-width:2.5}
