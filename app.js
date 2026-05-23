@@ -319,7 +319,7 @@ let lastRefreshTime = 0;
 function timeUntilRefresh() {
   const ms   = REFRESH_COOLDOWN_MS - (Date.now() - lastRefreshTime);
   if (ms <= 0) return null;
-  return 'Refreshes once per minute — try again shortly';
+  return 'Refreshes once a minute';
 }
 
 function showPTRMessage(msg, duration = 2200) {
@@ -377,7 +377,7 @@ function setupPullToRefresh() {
     if (triggered) {
       const wait = timeUntilRefresh();
       if (wait) {
-        showPTRMessage('Try again in ' + wait);
+        showPTRMessage('Refreshes once a minute');
       } else {
         ptr.style.height  = '48px';
         ptr.style.opacity = '1';
@@ -399,7 +399,7 @@ async function doShuffle() {
   const loadingEl = document.getElementById('discover-loading');
   cards.innerHTML = '';
   loadingEl.style.display = 'flex';
-  loadingEl.innerHTML = '<div class="spinner"></div><p>Loading new discoveries…</p>';
+  loadingEl.innerHTML = '<div class="spinner"></div><p>Gathering curiosities…</p>';
   try {
     await loadContent();
     lastRefreshTime = Date.now();
@@ -522,33 +522,43 @@ async function init() {
     if (!localStorage.getItem('curio_hide_install')) showInstallBanner(e);
   });
 
-  // Auto-refresh: track when page was hidden, refresh if away > 5 minutes
+  // Auto-refresh on return — bypass PTR cooldown entirely (cooldown is only for manual pulls)
+  // Threshold matches the 1-minute refresh window
   let hiddenAt = null;
-  const REFRESH_AFTER_MS = 5 * 60 * 1000;
+  const RETURN_REFRESH_MS = 60 * 1000; // 1 minute away = fresh feed on return
 
   document.addEventListener('visibilitychange', async () => {
     if (document.hidden) {
       hiddenAt = Date.now();
     } else {
-      if (hiddenAt && Date.now() - hiddenAt > REFRESH_AFTER_MS) {
+      if (hiddenAt && Date.now() - hiddenAt >= RETURN_REFRESH_MS) {
         hiddenAt = null;
-        if (state.tab === 'discover') await doShuffle();
+        if (state.tab === 'discover') {
+          lastRefreshTime = 0; // reset cooldown so it always fetches
+          await doShuffle();
+        }
       } else {
         hiddenAt = null;
       }
     }
   });
 
-  // Also catch home-screen re-opens via pageshow (fires on bfcache restore)
+  // pageshow fires on bfcache restore (bookmark re-open, back button)
+  // Always refresh in this case — reset cooldown first
   window.addEventListener('pageshow', async (e) => {
-    if (e.persisted && state.tab === 'discover') await doShuffle();
+    if (e.persisted && state.tab === 'discover') {
+      lastRefreshTime = 0;
+      await doShuffle();
+    }
   });
 
-  // Load content — no localStorage cache, always fresh
+  // Load content on first open
   const loadingEl = document.getElementById('discover-loading');
   try {
     loadingEl.style.display = 'flex';
+    loadingEl.innerHTML = '<div class="spinner"></div><p>Gathering curiosities…</p>';
     await loadContent();
+    lastRefreshTime = Date.now();
     loadingEl.style.display = 'none';
     renderDiscover();
   } catch (err) {
@@ -556,6 +566,7 @@ async function init() {
     setTimeout(async () => {
       try {
         await loadContent();
+        lastRefreshTime = Date.now();
         loadingEl.style.display = 'none';
         renderDiscover();
       } catch {
