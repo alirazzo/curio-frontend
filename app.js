@@ -313,14 +313,13 @@ function toggleFilterDropdown() {
 // ─────────────────────────────────────────────────────────────────
 //  PULL TO REFRESH
 // ─────────────────────────────────────────────────────────────────
-const REFRESH_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
+const REFRESH_COOLDOWN_MS = 1 * 60 * 1000; // 1 minute
 let lastRefreshTime = 0;
 
 function timeUntilRefresh() {
   const ms   = REFRESH_COOLDOWN_MS - (Date.now() - lastRefreshTime);
   if (ms <= 0) return null;
-  const mins = Math.ceil(ms / 60000);
-  return mins === 1 ? '1 minute' : mins + ' minutes';
+  return 'Refreshes once per minute — try again shortly';
 }
 
 function showPTRMessage(msg, duration = 2200) {
