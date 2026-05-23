@@ -21,6 +21,7 @@ const state = {
   theme:       localStorage.getItem('curio_theme') || 'dark',
   tab:         'discover',
   activeTopic: 'all',
+  activeLang:  'all',
   cards:       [],
   savedIds:    JSON.parse(localStorage.getItem('curio_saved_ids')   || '[]'),
   savedCards:  JSON.parse(localStorage.getItem('curio_saved_cards') || '[]'),
@@ -54,7 +55,7 @@ async function apiFetch(path) {
 // No localStorage cache — every open fetches fresh content (Instagram-style)
 async function loadContent() {
   const topic = state.activeTopic;
-  const data  = await apiFetch('/api/feed?category=' + topic + '&limit=' + CONFIG.CARDS_TO_SHOW);
+  const data  = await apiFetch('/api/feed?category=' + topic + '&lang=' + state.activeLang + '&limit=' + CONFIG.CARDS_TO_SHOW);
   state.cards = data.items || [];
   // Register all cards in the persistent cache for bookmark lookups
   state.cards.forEach(c => cardCache.set(c.id, c));
@@ -139,8 +140,9 @@ function cardActionsHtml(card) {
 
 function buildCard(card, isOtd) {
   const el = document.createElement('article');
-  el.className = 'card' + (isOtd ? ' card-otd' : '');
-  el.dataset.id = card.id;
+  el.className = 'card' + (isOtd ? ' card-otd' : '') + (card.lang === 'ar' ? ' card-rtl' : '');
+  el.dataset.id   = card.id;
+  el.dataset.lang = card.lang || 'en';
   el.innerHTML = `
     ${cardImageHtml(card)}
     <div class="card-body">
@@ -495,15 +497,17 @@ async function init() {
   document.getElementById('lang-btn').addEventListener('click', e => {
     e.stopPropagation();
     document.getElementById('lang-dropdown').classList.toggle('open');
-    document.getElementById('filter-dropdown').classList.remove('open');
+    document.getElementById('filter-dropdown').classList.remove('open'); // close other
   });
   document.querySelectorAll('[data-lang]').forEach(el => {
-    el.addEventListener('click', () => {
+    el.addEventListener('click', async () => {
       if (el.classList.contains('lang-soon')) return;
+      state.activeLang = el.dataset.lang;
       document.querySelectorAll('[data-lang]').forEach(o => o.classList.remove('active'));
       el.classList.add('active');
       document.getElementById('lang-dropdown').classList.remove('open');
       document.getElementById('lang-btn').classList.toggle('active', el.dataset.lang !== 'all');
+      if (state.tab === 'discover') await doShuffle();
     });
   });
 
@@ -511,6 +515,7 @@ async function init() {
   document.getElementById('filter-btn').addEventListener('click', e => {
     e.stopPropagation();
     toggleFilterDropdown();
+    document.getElementById('lang-dropdown').classList.remove('open'); // close other
   });
   document.querySelectorAll('.filter-opt').forEach(el => {
     el.addEventListener('click', () => setTopic(el.dataset.topic));
