@@ -157,7 +157,14 @@ body{font-family:'DM Sans',system-ui,sans-serif;background:#000}
 .saved-del{font-size:16px;color:var(--t3);background:none;border:none;cursor:pointer;padding:4px 6px;border-radius:4px;line-height:1}
 .saved-del:hover{color:#E24B4A}
 
-/* ── Bottom nav ── */
+/* ── Arabic RTL cards ── */
+.card-rtl .card-title,
+.card-rtl .card-excerpt,
+.card-rtl .card-body{direction:rtl;text-align:right}
+.card-rtl .card-title{font-family:'Noto Naskh Arabic',serif;font-size:18px;line-height:1.5}
+.card-rtl .card-excerpt{font-family:'Noto Naskh Arabic',sans-serif;font-size:14px;line-height:1.8}
+.card-rtl .card-meta{flex-direction:row-reverse}
+.card-rtl .card-actions{flex-direction:row-reverse}
 .bottom-nav{
   height:58px;background:var(--bg);border-top:.5px solid var(--brd);
   display:flex;align-items:center;justify-content:space-around;
