@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────────
 const CONFIG = {
   BACKEND_URL:   'https://curio-backend-yxm1.onrender.com',
-  CARDS_TO_SHOW: 50,
+  CARDS_TO_SHOW: 80,
 };
 
 // ─────────────────────────────────────────────────────────────────
@@ -22,6 +22,7 @@ const state = {
   tab:         'discover',
   activeTopic: 'all',
   activeLang:  'all',
+  allCards:    [], // full unfiltered set
   cards:       [],
   savedIds:    JSON.parse(localStorage.getItem('curio_saved_ids')   || '[]'),
   savedCards:  JSON.parse(localStorage.getItem('curio_saved_cards') || '[]'),
@@ -55,8 +56,9 @@ async function apiFetch(path) {
 // No localStorage cache — every open fetches fresh content (Instagram-style)
 async function loadContent() {
   const topic = state.activeTopic;
-  const data  = await apiFetch('/api/feed?category=' + topic + '&lang=' + state.activeLang + '&limit=' + CONFIG.CARDS_TO_SHOW);
+  const data  = await apiFetch('/api/feed?category=all&lang=all&limit=' + CONFIG.CARDS_TO_SHOW);
   state.cards = data.items || [];
+  state.allCards = state.cards; // keep full set for local filtering
   // Register all cards in the persistent cache for bookmark lookups
   state.cards.forEach(c => cardCache.set(c.id, c));
 }
@@ -172,13 +174,20 @@ function renderDiscover() {
   const container = document.getElementById('discover-cards');
   container.innerHTML = '';
 
-  let cards = state.cards;
+  // Filter locally from full card set — no API call needed
+  let cards = state.allCards.length ? state.allCards : state.cards;
+
   if (state.activeTopic !== 'all') {
     cards = cards.filter(c => c.topic === state.activeTopic);
   }
+  if (state.activeLang !== 'all') {
+    cards = cards.filter(c => (c.lang || 'en') === state.activeLang);
+  }
 
   if (!cards.length) {
-    container.innerHTML = '<p class="empty-state">No articles found for this topic. Try shuffling or selecting All.</p>';
+    const langMsg = state.activeLang !== 'all' ? ' in this language' : '';
+    const topicMsg = state.activeTopic !== 'all' ? ' in this category' : '';
+    container.innerHTML = `<p class="empty-state">No articles found${topicMsg}${langMsg}. Pull down to refresh.</p>`;
     return;
   }
 
@@ -292,15 +301,12 @@ function setTab(tab) {
 
 function setTopic(topic) {
   state.activeTopic = topic;
-  document.querySelectorAll('.filter-opt').forEach(p => p.classList.toggle('active', p.dataset.topic === topic));
+  document.querySelectorAll('[data-topic]').forEach(p => p.classList.toggle('active', p.dataset.topic === topic));
   const btn = document.getElementById('filter-btn');
   if (btn) btn.classList.toggle('active', topic !== 'all');
   document.getElementById('filter-dropdown').classList.remove('open');
-
-  if (state.tab === 'discover') {
-    // If switching to a new topic, fetch fresh content for that topic
-    doShuffle();
-  }
+  // Filter locally — no new API call
+  if (state.tab === 'discover') renderDiscover();
 }
 
 function toggleFilterDropdown() {
@@ -345,7 +351,22 @@ function setupPullToRefresh() {
   const THRESHOLD = 72;
 
   feed.addEventListener('touchstart', e => {
-    if (feed.scrollTop === 0 && state.tab === 'discover') {
+    // Trigger if: at top of feed, OR content is stale (over 1 min old)
+    // This catches the case where bfcache restores the page mid-scroll
+    const isAtTop   = feed.scrollTop === 0;
+    const isStale   = lastRefreshTime > 0 && (Date.now() - lastRefreshTime) > REFRESH_COOLDOWN_MS;
+    const shouldStart = isAtTop || isStale;
+
+    if (shouldStart && state.tab === 'discover') {
+      // If stale and not at top, scroll to top first then auto-refresh
+      if (isStale && !isAtTop) {
+        feed.scrollTo({ top: 0, behavior: 'smooth' });
+        setTimeout(async () => {
+          lastRefreshTime = 0;
+          await doShuffle();
+        }, 300);
+        return;
+      }
       startY    = e.touches[0].clientY;
       pulling   = true;
       triggered = false;
@@ -497,17 +518,18 @@ async function init() {
   document.getElementById('lang-btn').addEventListener('click', e => {
     e.stopPropagation();
     document.getElementById('lang-dropdown').classList.toggle('open');
-    document.getElementById('filter-dropdown').classList.remove('open'); // close other
+    document.getElementById('filter-dropdown').classList.remove('open');
   });
   document.querySelectorAll('[data-lang]').forEach(el => {
-    el.addEventListener('click', async () => {
+    el.addEventListener('click', () => {
       if (el.classList.contains('lang-soon')) return;
       state.activeLang = el.dataset.lang;
       document.querySelectorAll('[data-lang]').forEach(o => o.classList.remove('active'));
       el.classList.add('active');
       document.getElementById('lang-dropdown').classList.remove('open');
       document.getElementById('lang-btn').classList.toggle('active', el.dataset.lang !== 'all');
-      if (state.tab === 'discover') await doShuffle();
+      // Filter locally — no new API call
+      if (state.tab === 'discover') renderDiscover();
     });
   });
 
