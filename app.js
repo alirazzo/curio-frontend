@@ -53,14 +53,28 @@ async function apiFetch(path) {
   return r.json();
 }
 
-// No localStorage cache — every open fetches fresh content (Instagram-style)
+// Fetch full set: English mix + dedicated FR + dedicated AR
+// This guarantees language filter always has enough content
 async function loadContent() {
-  const topic = state.activeTopic;
-  const data  = await apiFetch('/api/feed?category=all&lang=all&limit=' + CONFIG.CARDS_TO_SHOW);
-  state.cards = data.items || [];
-  state.allCards = state.cards; // keep full set for local filtering
-  // Register all cards in the persistent cache for bookmark lookups
-  state.cards.forEach(c => cardCache.set(c.id, c));
+  const [main, fr, ar] = await Promise.allSettled([
+    apiFetch('/api/feed?category=all&lang=all&limit=60'),
+    apiFetch('/api/feed?category=all&lang=fr&limit=20'),
+    apiFetch('/api/feed?category=all&lang=ar&limit=20'),
+  ]);
+  const all = [
+    ...(main.status === 'fulfilled' ? main.value.items || [] : []),
+    ...(fr.status   === 'fulfilled' ? fr.value.items   || [] : []),
+    ...(ar.status   === 'fulfilled' ? ar.value.items   || [] : []),
+  ];
+  // Deduplicate by URL
+  const seen = new Set();
+  state.allCards = all.filter(c => {
+    if (seen.has(c.url)) return false;
+    seen.add(c.url);
+    return true;
+  });
+  state.cards = state.allCards;
+  state.allCards.forEach(c => cardCache.set(c.id, c));
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -286,17 +300,30 @@ function copyLink(encodedUrl, btn) {
 // ─────────────────────────────────────────────────────────────────
 //  NAVIGATION & FILTER
 // ─────────────────────────────────────────────────────────────────
+let savedDiscoverScroll = 0;
+
 function setTab(tab) {
+  const feed = document.getElementById('feed');
+
+  // Save scroll position when leaving discover
+  if (state.tab === 'discover') savedDiscoverScroll = feed.scrollTop;
+
   state.tab = tab;
   document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
 
   document.getElementById('feed-discover').style.display = tab === 'discover' ? 'block' : 'none';
   document.getElementById('feed-saved').style.display    = tab === 'saved'    ? 'block' : 'none';
-  document.getElementById('filter-wrap').style.display = tab === 'discover' ? 'block' : 'none';
+  document.getElementById('filter-wrap').style.display   = tab === 'discover' ? 'block' : 'none';
 
-  if (tab === 'saved') renderSaved();
+  if (tab === 'saved') {
+    feed.scrollTop = 0;
+    renderSaved();
+  }
 
-  document.getElementById('feed').scrollTop = 0;
+  // Restore discover scroll position when returning
+  if (tab === 'discover') {
+    requestAnimationFrame(() => { feed.scrollTop = savedDiscoverScroll; });
+  }
 }
 
 function setTopic(topic) {
@@ -570,8 +597,7 @@ async function init() {
 
   // Belt-and-suspenders: localStorage timestamp ensures refresh even if
   // pageshow/visibilitychange don't fire (some Android Chrome versions)
-  let hiddenAt = null;
-  const RETURN_REFRESH_MS = 60 * 1000; // 1 minute away = fresh feed on return
+  const RETURN_REFRESH_MS = 60 * 1000;
   const STORED_KEY = 'curio_last_load';
   const storedTime = parseInt(localStorage.getItem(STORED_KEY) || '0');
   if (Date.now() - storedTime > RETURN_REFRESH_MS) {
@@ -579,26 +605,11 @@ async function init() {
     localStorage.setItem(STORED_KEY, Date.now());
   }
 
-  // Auto-refresh on return — bypass PTR cooldown entirely (cooldown is only for manual pulls)
+  // SW is now network-first for navigation — page always loads fresh on open
+  // Only manual PTR is needed. Remove auto-refresh on visibility change
+  // to stop unwanted refreshes every time screen turns on.
 
-  document.addEventListener('visibilitychange', async () => {
-    if (document.hidden) {
-      hiddenAt = Date.now();
-    } else {
-      if (hiddenAt && Date.now() - hiddenAt >= RETURN_REFRESH_MS) {
-        hiddenAt = null;
-        if (state.tab === 'discover') {
-          lastRefreshTime = 0; // reset cooldown so it always fetches
-          await doShuffle();
-        }
-      } else {
-        hiddenAt = null;
-      }
-    }
-  });
-
-  // pageshow fires on bfcache restore (bookmark re-open, back button)
-  // Always refresh in this case — reset cooldown first
+  // pageshow still handles bfcache edge cases (belt and suspenders)
   window.addEventListener('pageshow', async (e) => {
     if (e.persisted && state.tab === 'discover') {
       lastRefreshTime = 0;
