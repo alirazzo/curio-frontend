@@ -352,7 +352,7 @@ let lastRefreshTime = 0;
 function timeUntilRefresh() {
   const ms   = REFRESH_COOLDOWN_MS - (Date.now() - lastRefreshTime);
   if (ms <= 0) return null;
-  return 'Refreshes once a minute';
+  return 'New curiosities may be refreshed once a minute';
 }
 
 function showPTRMessage(msg, duration = 2200) {
@@ -425,7 +425,7 @@ function setupPullToRefresh() {
     if (triggered) {
       const wait = timeUntilRefresh();
       if (wait) {
-        showPTRMessage('Refreshes once a minute');
+        showPTRMessage('New curiosities may be refreshed once a minute');
       } else {
         ptr.style.height  = '48px';
         ptr.style.opacity = '1';
@@ -591,30 +591,6 @@ async function init() {
   window.addEventListener('beforeinstallprompt', e => {
     e.preventDefault();
     if (!localStorage.getItem('curio_hide_install')) showInstallBanner(e);
-  });
-
-  // Auto-refresh on return
-
-  // Belt-and-suspenders: localStorage timestamp ensures refresh even if
-  // pageshow/visibilitychange don't fire (some Android Chrome versions)
-  const RETURN_REFRESH_MS = 60 * 1000;
-  const STORED_KEY = 'curio_last_load';
-  const storedTime = parseInt(localStorage.getItem(STORED_KEY) || '0');
-  if (Date.now() - storedTime > RETURN_REFRESH_MS) {
-    lastRefreshTime = 0;
-    localStorage.setItem(STORED_KEY, Date.now());
-  }
-
-  // SW is now network-first for navigation — page always loads fresh on open
-  // Only manual PTR is needed. Remove auto-refresh on visibility change
-  // to stop unwanted refreshes every time screen turns on.
-
-  // pageshow still handles bfcache edge cases (belt and suspenders)
-  window.addEventListener('pageshow', async (e) => {
-    if (e.persisted && state.tab === 'discover') {
-      lastRefreshTime = 0;
-      await doShuffle();
-    }
   });
 
   // Load content on first open
