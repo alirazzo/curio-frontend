@@ -400,22 +400,7 @@ function setupPullToRefresh() {
   const THRESHOLD = 72;
 
   feed.addEventListener('touchstart', e => {
-    // Trigger if: at top of feed, OR content is stale (over 1 min old)
-    // This catches the case where bfcache restores the page mid-scroll
-    const isAtTop   = feed.scrollTop === 0;
-    const isStale   = lastRefreshTime > 0 && (Date.now() - lastRefreshTime) > REFRESH_COOLDOWN_MS;
-    const shouldStart = isAtTop || isStale;
-
-    if (shouldStart && state.tab === 'discover') {
-      // If stale and not at top, scroll to top first then auto-refresh
-      if (isStale && !isAtTop) {
-        feed.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(async () => {
-          lastRefreshTime = 0;
-          await doShuffle();
-        }, 300);
-        return;
-      }
+    if (feed.scrollTop === 0 && state.tab === 'discover') {
       startY    = e.touches[0].clientY;
       pulling   = true;
       triggered = false;
