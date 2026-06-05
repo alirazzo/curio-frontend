@@ -82,6 +82,26 @@ async function loadContent() {
 // ─────────────────────────────────────────────────────────────────
 //  CARD RENDERING
 // ─────────────────────────────────────────────────────────────────
+// Source domain → language map (fallback when backend lang field is missing)
+const SOURCE_LANG = {
+  'monde-diplomatique.fr':'fr','ifri.org':'fr','orientxxi.info':'fr',
+  'slate.fr':'fr','aoc.media':'fr','scienceshumaines.com':'fr',
+  'courrierinternational.com':'fr','esprit.presse.fr':'fr',
+  'alternatives-economiques.fr':'fr','cnrs.fr':'fr','inserm.fr':'fr',
+  'inrae.fr':'fr','laviedesidees.fr':'fr','contretemps.eu':'fr',
+  'raseef22.net':'ar','madamasr.com':'ar','daraj.com':'ar',
+  'arab-reform.net':'ar','assafirarabi.com':'ar','aljumhuriya.net':'ar',
+  'jadaliyya.com':'ar','7iber.com':'ar','madarcenter.org':'ar',
+};
+function cardLang(card) {
+  if (card.lang && card.lang !== 'en') return card.lang;
+  const src = card.source || '';
+  for (const [domain, lang] of Object.entries(SOURCE_LANG)) {
+    if (src.includes(domain)) return lang;
+  }
+  return 'en';
+}
+
 const TOPIC_ICONS = {
   'life-sciences-pharma': '🧬',
   'medicine':          '🩺',
@@ -158,9 +178,9 @@ function cardActionsHtml(card) {
 
 function buildCard(card, isOtd) {
   const el = document.createElement('article');
-  el.className = 'card' + (isOtd ? ' card-otd' : '') + (card.lang === 'ar' ? ' card-rtl' : '');
+  el.className = 'card' + (isOtd ? ' card-otd' : '') + (cardLang(card) === 'ar' ? ' card-rtl' : '');
   el.dataset.id   = card.id;
-  el.dataset.lang = card.lang || 'en';
+  el.dataset.lang = cardLang(card);
   el.innerHTML = `
     ${cardImageHtml(card)}
     <div class="card-body">
@@ -197,7 +217,7 @@ function renderDiscover() {
     cards = cards.filter(c => c.topic === state.activeTopic);
   }
   if (state.activeLang !== 'all') {
-    cards = cards.filter(c => (c.lang || 'en') === state.activeLang);
+    cards = cards.filter(c => cardLang(c) === state.activeLang);
   }
 
   if (!cards.length) {
@@ -570,7 +590,8 @@ async function init() {
     toggleFilterDropdown();
     document.getElementById('lang-dropdown').classList.remove('open'); // close other
   });
-  document.querySelectorAll('.filter-opt').forEach(el => {
+  // Category filter — ONLY bind to buttons that have data-topic (not language buttons)
+  document.querySelectorAll('.filter-opt[data-topic]').forEach(el => {
     el.addEventListener('click', () => setTopic(el.dataset.topic));
   });
   document.addEventListener('click', () => {
