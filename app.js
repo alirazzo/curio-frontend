@@ -66,7 +66,6 @@ async function loadContent() {
     ...(fr.status   === 'fulfilled' ? fr.value.items   || [] : []),
     ...(ar.status   === 'fulfilled' ? ar.value.items   || [] : []),
   ];
-  // Deduplicate by URL
   const seen = new Set();
   state.allCards = all.filter(c => {
     if (seen.has(c.url)) return false;
@@ -75,6 +74,9 @@ async function loadContent() {
   });
   state.cards = state.allCards;
   state.allCards.forEach(c => cardCache.set(c.id, c));
+  // Persist cards for the session — so page reloads never show a blank feed
+  // or fetch uninvited. Content only changes when the user pulls down.
+  try { sessionStorage.setItem('curio_cards', JSON.stringify(state.allCards)); } catch {}
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -445,6 +447,8 @@ function setupPullToRefresh() {
 async function doShuffle() {
   const cards     = document.getElementById('discover-cards');
   const loadingEl = document.getElementById('discover-loading');
+  // Clear session — this pull will become the new session
+  try { sessionStorage.removeItem('curio_cards'); } catch {}
   cards.innerHTML = '';
   loadingEl.style.display = 'flex';
   loadingEl.innerHTML = '<div class="spinner"></div><p>Gathering curiosities…</p>';
@@ -593,8 +597,26 @@ async function init() {
     if (!localStorage.getItem('curio_hide_install')) showInstallBanner(e);
   });
 
-  // Load content on first open
+  // Restore from session first — no network call, no surprise refresh
+  // Content only changes when user explicitly pulls down
   const loadingEl = document.getElementById('discover-loading');
+  try {
+    const saved = sessionStorage.getItem('curio_cards');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.length > 0) {
+        state.allCards = parsed;
+        state.cards    = parsed;
+        parsed.forEach(c => cardCache.set(c.id, c));
+        lastRefreshTime = Date.now(); // treat as freshly loaded
+        loadingEl.style.display = 'none';
+        renderDiscover();
+        return; // ← do not fetch — user must pull to refresh
+      }
+    }
+  } catch {}
+
+  // No session yet (first ever visit or tab was closed) — fetch fresh
   try {
     loadingEl.style.display = 'flex';
     loadingEl.innerHTML = '<div class="spinner"></div><p>Gathering curiosities…</p>';
